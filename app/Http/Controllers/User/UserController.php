@@ -7,6 +7,7 @@ use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Requests\User\ForgotPasswordRequest;
 use App\Http\Requests\User\ResetPasswordRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Resources\Auth\AuthResource;
 use App\Services\User\UserService;
 use App\Support\ApiResponse;
 
@@ -34,6 +35,8 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request) 
     {
         $data = $this->userService->update($request->validated());
-        return ApiResponse::success($data, 'User was updated with success!');
+        return ApiResponse::success(
+            new AuthResource($data),
+            'User was updated with success!');
     }
 }

@@ -75,8 +75,16 @@ class UserService {
         }
 
         return DB::transaction(function() use ($data, $user) {
+
             $user->update($data);
-            return $user->refresh();
+            $user->refresh();
+
+            if ($data['profile_pic'])
+            {
+                $user->addMedia($data['profile_pic'])->toMediaCollection('profile_pic');
+            } 
+
+            return $user->load(['roles', 'permissions']);
         });
     }
 

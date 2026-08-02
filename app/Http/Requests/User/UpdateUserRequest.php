@@ -25,20 +25,24 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'name' => [
+                'nullable',
                 'sometimes',
                 'string',
             ],
             'email' => [
+                'nullable',
                 'sometimes',
                 'email',
             ],
             'cpf' => [
+                'nullable',
                 'sometimes',
                 'string',
                 'unique:users,cpf',
                 new ValidCpfRule()
             ],
             'profile_pic' => [
+                'nullable',
                 'sometimes',
                 'mimes:jpg,jpeg,png,webp',
                 'max:10000'
