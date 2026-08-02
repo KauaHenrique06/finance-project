@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\User;
 
 use App\Rules\ValidCpfRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
-class StoreUserRequest extends FormRequest
+class UpdateUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,33 +25,43 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name' => [
-                'required',
+                'sometimes',
                 'string',
-                'max:255'
             ],
             'email' => [
-                'required',
+                'sometimes',
                 'email',
-                'unique:users,email',
             ],
             'cpf' => [
-                'required',
+                'sometimes',
                 'string',
                 'unique:users,cpf',
-                new ValidCpfRule
-            ],
-            'password' => [
-                'required',
-                Password::min(6)
-                    ->mixedCase()
-                    ->symbols()
-                    ->numbers()
+                new ValidCpfRule()
             ],
             'profile_pic' => [
-                'image',
-                'mimes:jpeg,png,webp,jpg',
+                'sometimes',
+                'mimes:jpg,jpeg,png,webp',
                 'max:10000'
             ]
+        ];
+    }
+
+    public function attributes(): array 
+    {
+        return [
+            'name' => 'Nome',
+            'email' => 'Email',
+            'cpf' => 'Cpf',
+            'profile_pic' => 'Foto de perfil'
+        ];
+    }
+
+    public function prepareForValidation(): array
+    {
+        return [
+            $this->merge([
+                'id' => $this->route('id')
+            ])
         ];
     }
 }

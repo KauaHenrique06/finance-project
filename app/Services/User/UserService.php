@@ -2,10 +2,14 @@
 
 namespace App\Services\User;
 
+use App\Exceptions\ApiException;
 use App\Jobs\SendForgotPasswordMail;
 use App\Models\ForgotPassword;
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Str;
 
 class UserService {
@@ -37,6 +41,43 @@ class UserService {
         $user = $forgotPassword->user;
         $user->update(['password' => $data['password']]);
         $forgotPassword->update(['used' => true]);
+    }
+
+    public function changePassword(array $data)
+    {
+        $authUser = Auth::user();
+        $user = User::where('id', $authUser->id)->first();
+        if (!$user) 
+        {
+            throw new Exception("You can't change password to other profile!");
+        }
+
+        if (!Hash::check($data['old_password'], $user->password)) 
+        {
+            throw new Exception("This old password is incorrect!");
+        }
+
+        return DB::transaction(function() use ($user, $data) {
+            $user->update([
+                'password' => $data['new_password']
+            ]);
+            return;
+        });
+    }
+
+    public function update(array $data): User
+    {
+        $authUser = Auth::user();
+        $user = User::where('id', $authUser->id)->first();
+        if (!$user) 
+        {
+            throw new ApiException("You can't change profile infos to other profile!");
+        }
+
+        return DB::transaction(function() use ($data, $user) {
+            $user->update($data);
+            return $user->refresh();
+        });
     }
 
 }

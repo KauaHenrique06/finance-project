@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Auth;
 
-use App\Http\Resources\Address\AddressResource;
 use App\Http\Resources\Permission\PermissionResource;
 use App\Http\Resources\Role\RoleResource;
 use Illuminate\Http\Request;
@@ -19,9 +18,11 @@ class AuthResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'cpf' => $this->cpf,
+            'profile_pic' => $this->profile_pic,
             'roles' => RoleResource::collection($this->whenLoaded('roles')),
             'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),
         ];

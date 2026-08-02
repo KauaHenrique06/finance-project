@@ -8,7 +8,6 @@ use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
 use App\Http\Resources\Auth\AuthResource;
 use App\Http\Resources\Role\RoleResource;
-use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Role\RoleService;

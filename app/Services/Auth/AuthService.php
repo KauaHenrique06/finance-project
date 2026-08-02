@@ -3,16 +3,15 @@
 namespace App\Services\Auth;
 
 use App\Http\Resources\Auth\AuthResource;
-use App\Jobs\SendForgotPasswordMail;
 use App\Jobs\SendWelcomeEmail;
-use App\Models\ForgotPassword;
 use App\Models\Notification;
 use App\Models\User;
+use Exception;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
-use Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService {
@@ -27,6 +26,16 @@ class AuthService {
 
             $user = User::create($data);
             $user->refresh();
+
+            if (isset($data['profile_pic'])) 
+            {
+                if ($data['profile_pic'] instanceof UploadedFile)
+                {
+                    $user->addMedia($data['profile_pic'])->toMediaCollection('profile_pic');
+                } else {
+                    throw new Exception('The image must be an instance of UploadedFile');
+                }
+            }
 
             foreach($usersToNotificate as $id) {
                 Notification::create([
@@ -69,7 +78,7 @@ class AuthService {
     public function me(): User {
 
         $authUser = Auth::user();
-        $authUser->load('addresses', 'roles', 'permissions');
+        $authUser->load('roles', 'permissions');
         return $authUser;
 
     }
