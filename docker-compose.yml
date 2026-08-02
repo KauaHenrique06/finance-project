@@ -7,7 +7,7 @@ services:
     ports:
       - "8000:8000"              
     networks:
-      - starter-pack-network
+      - finance-project-network
     depends_on:
       - db
       - redis
@@ -15,7 +15,7 @@ services:
   db:
     image: postgres:17-alpine
     environment:
-      POSTGRES_DB: StarterPack
+      POSTGRES_DB: FinanceProject
       POSTGRES_USER: root
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
@@ -23,17 +23,17 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - starter-pack-network
+      - finance-project-network
 
   redis:
     image: redis:alpine
     networks:
-      - starter-pack-network
+      - finance-project-network
     volumes:
       - redisdata:/data 
 
 networks:
-  starter-pack-network:
+  finance-project-network:
 
 volumes:
   pgdata:
