@@ -38,7 +38,7 @@ class ValidCpfRule implements ValidationRule
             }
             $d = ((10 * $d) % 11) % 10;
             if ($cpf[$c] != $d) {
-                $fail('The cpf fiels is invalid');
+                $fail('The cpf fields is invalid');
                 return;
             }
         }

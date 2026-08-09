@@ -7,7 +7,9 @@ namespace App\Models;
 use App\Traits\HasUuidV7;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Image\Enums\Fit;
@@ -31,10 +33,12 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         'name',
         'email',
         'password',
-        'cpf'
+        'cpf',
+        'phone',
+        'address_id'
     ];
 
-    protected $append = ['profile_pic'];
+    protected $appends = ['profile_pic'];
 
     protected $with = ['media'];
 
@@ -104,5 +108,12 @@ class User extends Authenticatable implements JWTSubject, HasMedia
     public function forgotPassword(): HasMany {
         return $this->hasMany(ForgotPassword::class);
     }
+
+    public function address(): HasOne 
+    {
+        return $this->hasOne(Address::class);
+    }
+
+    
 
 }

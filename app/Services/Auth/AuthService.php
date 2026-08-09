@@ -4,8 +4,10 @@ namespace App\Services\Auth;
 
 use App\Http\Resources\Auth\AuthResource;
 use App\Jobs\SendWelcomeEmail;
+use App\Models\Address;
 use App\Models\Notification;
 use App\Models\User;
+use App\Services\Address\AddressService;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\UploadedFile;
@@ -16,14 +18,25 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService {
 
+    public function __construct(protected AddressService $addressService) {}
+
     public function register(array $data): User {
 
         $usersToNotificate = User::whereHas('roles', function($query) {
             $query->whereIn('name', ['admin']);
         })->pluck('id')->toArray();
 
-        return DB::transaction(function() use ($data, $usersToNotificate) {
+        $address = !empty($data['address']) 
+            ? $data['address']
+            : null; 
 
+        return DB::transaction(function() use ($data, $usersToNotificate, $address) {
+
+            if ($address && is_array($address)) {
+                $this->addressService->store($address);
+            }
+
+            // $data = array_merge($data, ['address_id' => $createAddress->id]);
             $user = User::create($data);
             $user->refresh();
 
