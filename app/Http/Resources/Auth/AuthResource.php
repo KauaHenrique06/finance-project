@@ -22,7 +22,11 @@ class AuthResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'cpf' => $this->cpf,
+            // Load the field was present only in pivot table
             'profile_pic' => $this->profile_pic,
+            'can_edit' => $this->whenPivotLoaded('transaction_user', function () {
+                return (bool) $this->pivot->can_edit;
+            }),
             'roles' => RoleResource::collection($this->whenLoaded('roles')),
             'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),
         ];

@@ -114,6 +114,20 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         return $this->hasOne(Address::class);
     }
 
-    
+    public function ownerGroupTransaction(): HasMany {
+        return $this->hasMany(GroupTransaction::class, 'owner_id');
+    }
+
+    public function payerTransaction(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'payer_id');
+    }
+
+    public function participantTransaction(): BelongsToMany {
+        return $this->belongsToMany(Transaction::class, 'transaction_user', 'participant_id', 'transaction_id')
+            ->using(TransactionUser::class)
+            ->withPivot('can_edit')
+            ->withTimestamps();
+    }
 
 }

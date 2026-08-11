@@ -49,10 +49,26 @@ class StoreUserRequest extends FormRequest
                     ->numbers()
             ],
             'profile_pic' => [
+                'nullable',
+                'sometimes',
                 'image',
                 'mimes:jpeg,png,webp,jpg',
                 'max:10000'
-            ]
+            ],
+            'address' => [
+                'required',
+                'array'
+            ],
+            'address.cep' => [
+                'required_with:address',
+                'string'
+            ],
+            'address.number' => [
+                'required_with:address',
+                'integer'
+            ],
+
+
         ];
     }
 }
