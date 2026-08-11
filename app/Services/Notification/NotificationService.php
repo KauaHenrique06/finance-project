@@ -1,0 +1,46 @@
+<?php
+
+namespace App\Services\Notification;
+
+use App\Exceptions\ApiException;
+use App\Models\Notification;
+use Auth;
+use Illuminate\Support\Facades\DB;
+
+class NotificationService
+{
+    public function index(array $data)
+    {
+        $authUserId = Auth::id();
+        return Notification::where('user_id', $authUserId)->get();
+    }
+
+    public function markAllNotificationAsRead()
+    {
+        $authUserId = Auth::id();
+        $notifications = Notification::where('user_id', $authUserId)->get();
+
+        return DB::transaction(function() use ($notifications) {
+            $notifications->map(function($notification) {
+                $notification->update([
+                    'read_at' => now()
+                ]);
+            });
+        });
+    }
+
+    public function markNotificationAsRead(array $data)
+    {
+        $authUserId = Auth::id();
+        $notification = Notification::findOrFail($data['id']);
+
+        if ($notification->user_id !== $authUserId)
+        {
+            throw new ApiException("You can't mark this notification as read!");
+        }
+
+        DB::transaction(function() use ($notification) {
+            $notification->update(['read_at' => now()]);
+        });
+    }
+}

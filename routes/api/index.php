@@ -7,3 +7,4 @@ Route::prefix('role')->group(base_path('routes/api/role.php'));
 Route::prefix('permission')->group(base_path('routes/api/permission.php'));
 Route::prefix('user')->group(base_path('routes/api/user.php'));
 Route::prefix('transaction')->group(base_path('routes/api/transaction.php'));
+Route::prefix('notification')->group(base_path('routes/api/notification.php'));
