@@ -33,7 +33,7 @@ class MarkTransactionAsPaidRequest extends FormRequest
                 'boolean'
             ],
             'payer_id' => [
-                'required',
+                'nullable',
                 'uuid',
                 'exists:users,id'
             ]
@@ -45,6 +45,7 @@ class MarkTransactionAsPaidRequest extends FormRequest
         return [
             'id' => 'ID da parcela',
             'is_paid' => 'Foi pago',
+            'payer_id' => 'ID do pagador',
         ];
     }
 
