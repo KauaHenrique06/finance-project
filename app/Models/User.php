@@ -130,4 +130,9 @@ class User extends Authenticatable implements JWTSubject, HasMedia
             ->withTimestamps();
     }
 
+    public function whatsappInstance(): HasMany
+    {
+        return $this->hasMany(WhatsappInstance::class);
+    }
+
 }
