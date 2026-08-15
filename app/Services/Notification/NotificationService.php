@@ -2,8 +2,8 @@
 
 namespace App\Services\Notification;
 
-use App\Exceptions\ApiException;
 use App\Models\Notification;
+use App\Support\Ownership;
 use Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -31,13 +31,8 @@ class NotificationService
 
     public function markNotificationAsRead(array $data)
     {
-        $authUserId = Auth::id();
         $notification = Notification::findOrFail($data['id']);
-
-        if ($notification->user_id !== $authUserId)
-        {
-            throw new ApiException("You can't mark this notification as read!");
-        }
+        Ownership::verify($notification->user_id, "You can't mark this notification as read!");
 
         DB::transaction(function() use ($notification) {
             $notification->update(['read_at' => now()]);
