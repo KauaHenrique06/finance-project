@@ -5,6 +5,8 @@ namespace App\Services\Transaction;
 use App\Exceptions\ApiException;
 use App\Models\GroupTransaction;
 use App\Models\Transaction;
+use App\Models\TransactionUser;
+use App\Models\WhatsappInstance;
 use App\Support\Ownership;
 use Auth;
 use Carbon\Carbon;
@@ -108,8 +110,32 @@ class GroupTransactionService
         });
     }
 
-    public function assignInstance(array $data)
+    public function assignInstanceToGroup(array $data): void
     {
+        $group = GroupTransaction::findOrFail($data['id']);
+        $instance = WhatsappInstance::select('id', 'user_id', 'status')->findOrFail($data['instance_id']);
+        Ownership::verify($group->owner_id, "You can't assign instance to this transaction group!");
 
+        $usersIdPresentInGroup = TransactionUser::select('participant_id')
+            ->where('group_id', $group->id)
+            ->pluck('participant_id')
+            ->flatten()
+            ->toArray();
+
+        $usersIdPresentInGroup = array_merge($usersIdPresentInGroup, [$group->owner_id]);
+
+        if (!in_array($instance->user_id, $usersIdPresentInGroup)) 
+        {
+            throw new ApiException("This instance doesn't belong to any member of the group!");
+        }
+
+        if ($instance->status !== 'connected')
+        {
+            throw new ApiException("This instance is not connected!");
+        }
+
+        $group->update([
+            'instance_id' => $instance->id
+        ]);
     }
 }
