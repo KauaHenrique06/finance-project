@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Transaction;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Transaction\AssignInstanceToGroupRequest;
 use App\Http\Requests\Transaction\AssignUserToTransactionGroupRequest;
 use App\Http\Requests\Transaction\DeleteTransactionGroupRequest;
 use App\Http\Requests\Transaction\IndexTransactionByGroupIdRequest;
@@ -51,6 +52,16 @@ class GroupTransactionController extends Controller
         return ApiResponse::success(
             null,
             'User was assigned to group with success!',
+            200
+        );
+    }
+
+    public function assignInstanceToGroup(AssignInstanceToGroupRequest $request)
+    {
+        $this->groupTransactionService->assignInstanceToGroup($request->validated());
+        return ApiResponse::success(
+            null,
+            'Instance was assigned to group with success!',
             200
         );
     }

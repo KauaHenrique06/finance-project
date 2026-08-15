@@ -3,6 +3,7 @@
 namespace App\Services\Whatsapp;
 
 use App\Exceptions\ApiException;
+use App\Models\GroupTransaction;
 use App\Models\WhatsappInstance;
 use App\Support\Ownership;
 use Auth;
@@ -14,6 +15,12 @@ use Str;
 
 class WhatsappInstanceService
 {
+
+    public function index(array $data): LengthAwarePaginator
+    {
+        return WhatsappInstance::paginate($data['perPage'], ['*'], 'page', $data['page']);
+    }
+
     public function store(array $data): WhatsappInstance
     {
         $slug = Str::slug($data['name']);
@@ -63,5 +70,21 @@ class WhatsappInstanceService
 
             return $whatsapp;
         });
+    }
+
+    public function delete(array $data): void
+    {
+        $instance = WhatsappInstance::findOrFail($data['id']);
+        Ownership::verify($instance->user_id, "You can't delete this instance!");
+
+        try {
+
+            Http::retry(3, 30)->withHeaders(['apikey' => config('services.evolution.key')])
+                ->delete(config('services.evolution.url') . '/instance/delete/' . $instance->slug);
+        } catch (\Exception $e) {
+            throw new ApiException('Failed to delete instance on evolutionAPI: ' . $e->getMessage());
+        }
+
+        $instance->delete();
     }
 }
