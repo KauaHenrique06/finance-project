@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'evolution' => [
+        'url' => env('EVOLUTION_API_URL'),
+        'key' => env('AUTHENTICATION_API_KEY'),
+        'webhook_url' => env('WEBHOOK_GLOBAL_URL'),
+    ],
+
+    'brasil_api' => [
+        'url' => env('BRASIL_API_URL'),
+    ],
+
 ];

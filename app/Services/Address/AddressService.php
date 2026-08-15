@@ -11,7 +11,7 @@ class AddressService
 {
     public function store(array $data)
     {
-        $url = env('BRASIL_API_URL');
+        $url = config('services.brasil_api.url');
 
         try {
 

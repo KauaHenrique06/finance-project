@@ -24,7 +24,7 @@ class WhatsappInstanceService
             'integration' => 'WHATSAPP-BAILEYS',
             'webhook' => [
                 'enabled' => true,
-                'url' => env('WEBHOOK_GLOBAL_URL'),
+                'url' => config('services.evolution.webhook_url'),
                 'events' => [
                     'CONNECTION_UPDATE',
                     // 'MESSAGES_UPSERT',
@@ -35,8 +35,8 @@ class WhatsappInstanceService
 
         try { 
 
-            $response = Http::retry(3, 30)->withHeaders(['apikey' => env('AUTHENTICATION_API_KEY')])
-                ->post(env('EVOLUTION_API_URL') . '/instance/create', $payload);
+            $response = Http::retry(3, 30)->withHeaders(['apikey' => config('services.evolution.key')])
+                ->post(config('services.evolution.url') . '/instance/create', $payload);
                 
             $response->json();
 
