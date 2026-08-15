@@ -26,7 +26,7 @@ class AssignUserToTransactionGroupRequest extends FormRequest
             'id' => [
                 'required', 
                 'uuid',
-                'exists:transactions,installment_group_id'
+                'exists:group_transaction,id'
             ],
             'user' => [
                 'required',

@@ -26,8 +26,6 @@ class TransactionResource extends JsonResource
             'is_paid' => $this->is_paid,
             'payment_date' => $this->payment_date,
             'payer' => new AuthResource($this->whenLoaded('payer')),
-            'participants' => AuthResource::collection($this->whenLoaded('participant')),
-    
         ];
     }
 }

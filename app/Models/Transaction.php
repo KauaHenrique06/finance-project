@@ -6,7 +6,6 @@ use App\Enum\TransactionStatusEnum;
 use App\Traits\HasUuidV7;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Transaction extends Model
@@ -49,14 +48,6 @@ class Transaction extends Model
     public function payer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'payer_id');
-    }
-
-    public function participant(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'transaction_user', 'transaction_id', 'participant_id')
-            ->using(TransactionUser::class)
-            ->withPivot('can_edit')
-            ->withTimestamps();;
     }
 
     public function groupTransaction(): BelongsTo

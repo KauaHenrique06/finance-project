@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Traits\HasUuidV7;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GroupTransaction extends Model
@@ -18,6 +20,7 @@ class GroupTransaction extends Model
         'title',
         'description',
         'owner_id',
+        'instance_id'
     ];
 
     protected function casts(): array
@@ -26,6 +29,7 @@ class GroupTransaction extends Model
             'title' => 'string',
             'description' => 'string',
             'owner_id' => 'string',
+            'instance_id' => 'string'
         ];
     }
 
@@ -34,8 +38,21 @@ class GroupTransaction extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function transaction(): HasMany 
+    public function transaction(): HasMany
     {
         return $this->hasMany(Transaction::class, 'group_id');
+    }
+
+    public function participant(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'transaction_user', 'group_id', 'participant_id')
+            ->using(TransactionUser::class)
+            ->withPivot('can_edit')
+            ->withTimestamps();
+    }
+
+    public function whatsappInstance(): BelongsTo
+    {
+        return $this->belongsTo(WhatsappInstance::class, 'instance_id');
     }
 }

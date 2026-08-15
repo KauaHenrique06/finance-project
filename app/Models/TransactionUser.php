@@ -11,9 +11,11 @@ class TransactionUser extends Pivot
 {
     use HasUuidV7, SoftDeletes;
 
+    protected $table = 'transaction_user';
+
     protected $fillable = [
         'participant_id',
-        'transaction_id',
+        'group_id',
         'can_edit'
     ];
 
@@ -26,9 +28,9 @@ class TransactionUser extends Pivot
         ];
     }
 
-    public function transaction(): BelongsTo
+    public function groupTransaction(): BelongsTo
     {
-        return $this->belongsTo(Transaction::class);
+        return $this->belongsTo(GroupTransaction::class, 'group_id');
     }
 
     public function participant(): BelongsTo
