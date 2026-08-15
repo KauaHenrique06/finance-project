@@ -20,28 +20,41 @@ class GroupTransactionService
 
         return DB::transaction(function () use ($data, $authUserId) {
 
-            $count = $data['quantity_installment'];
-            $installmentNumber = 1;
+            $quantityInstallment = $data['has_installment']
+                ? $data['quantity_installment']
+                : 1;
+
             $nextDueDate = Carbon::parse($data['due_date']);
 
             $group = GroupTransaction::create([
                 'title' => $data['title'],
                 'description' => $data['description'],
                 'owner_id' => $authUserId,
+                'total_amount' => $data['total_amount'],
             ]);
 
-            for ($count; $count > 0; $count--)
+            $totalInCents = (int) round($data['total_amount'] * 100);
+            $installmentInCents = intdiv($totalInCents, $quantityInstallment);
+            $remainderInCents = $totalInCents - ($installmentInCents * $quantityInstallment);
+
+            $transaction = [];
+
+            for ($installmentNumber = 1; $installmentNumber <= $quantityInstallment; $installmentNumber++)
             {
+                $amountInCents = $installmentNumber === 1
+                    ? $installmentInCents + $remainderInCents
+                    : $installmentInCents;
+
                 $transaction[] = Transaction::create([
                     'has_installment' => $data['has_installment'],
-                    'quantity_installment' => $data['quantity_installment'],
+                    'quantity_installment' => $quantityInstallment,
                     'due_date' => $nextDueDate,
                     'installment_number' => $installmentNumber,
+                    'amount' => $amountInCents / 100,
                     'group_id' => $group->id,
                 ])->load(['groupTransaction.owner']);
 
                 $nextDueDate->addMonth();
-                $installmentNumber++;
             }
 
             return $transaction;

@@ -25,6 +25,7 @@ class Transaction extends Model
         'group_id',
         'payment_date',
         'payer_id',
+        'amount',
     ];
 
     protected function casts(): array
@@ -42,6 +43,7 @@ class Transaction extends Model
             'group_id' => 'string',
             'payment_date' => 'date',
             'payer_id' => 'string',
+            'amount' => 'decimal:2',
         ];
     }
 

@@ -19,6 +19,7 @@ class TransactionResource extends JsonResource
             'id' => $this->id,
             'group' => new GroupTransactionResource($this->whenLoaded('groupTransaction')),
             'has_installment' => $this->has_installment,
+            'amount' => $this->amount,
             'due_date' => $this->due_date,
             'installment_number' => $this->installment_number,
             'quantity_installment' => $this->quantity_installment,

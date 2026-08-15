@@ -37,11 +37,18 @@ class StoreTransactionRequest extends FormRequest
             ],
             'quantity_installment' => [
                 'required_if:has_installment,true',
+                'nullable',
                 'integer',
                 'min:2'
             ],
+            'total_amount' => [
+                'required',
+                'numeric',
+                'min:0.01'
+            ],
             'due_date' => [
                 'required',
+                'date'
             ]
         ];
     }
@@ -53,6 +60,7 @@ class StoreTransactionRequest extends FormRequest
             'description' => 'Descrição',
             'has_installment' => 'Tem parcela',
             'quantity_installment' => 'Quantidade de parcelas',
+            'total_amount' => 'Valor total',
             'due_date' => 'Data do vencimento',
         ];
     }

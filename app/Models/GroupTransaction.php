@@ -20,7 +20,8 @@ class GroupTransaction extends Model
         'title',
         'description',
         'owner_id',
-        'instance_id'
+        'instance_id',
+        'total_amount'
     ];
 
     protected function casts(): array
@@ -29,7 +30,8 @@ class GroupTransaction extends Model
             'title' => 'string',
             'description' => 'string',
             'owner_id' => 'string',
-            'instance_id' => 'string'
+            'instance_id' => 'string',
+            'total_amount' => 'decimal:2'
         ];
     }
 
