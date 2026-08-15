@@ -4,18 +4,21 @@ namespace App\Services\Whatsapp;
 
 use App\Exceptions\ApiException;
 use App\Models\WhatsappInstance;
+use App\Support\Ownership;
 use Auth;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Str;
 
 class WhatsappInstanceService
 {
-    public function store(array $data) 
+    public function store(array $data): WhatsappInstance
     {
-        $authUserId = Auth::id();
+        $slug = Str::slug($data['name']);
         $payload = [
-            'instanceName' => $data['name'], 
+            'instanceName' => $slug, 
             'qrcode' => true,
             'number' => $data['number'],
             'integration' => 'WHATSAPP-BAILEYS',
@@ -42,19 +45,20 @@ class WhatsappInstanceService
             throw new ApiException('Failed to create instance: ' . $e->getMessage());
         }
 
-        return DB::transaction(function () use ($response, $data, $authUserId) {
+        return DB::transaction(function () use ($response, $data, $slug) {
 
             $qrCodeData = $response['qrcode'];
             $instanceData = $response['instance'];
 
             $whatsapp = WhatsappInstance::create([
-                'name' => $instanceData['instanceName'],
+                'name' => $data['name'],
                 'number' => $data['number'],
                 'evolution_id' => $instanceData['instanceId'], 
                 'status' => $instanceData['status'],
                 'qrcode_base64' => $qrCodeData['base64'],
                 'qrcode_code' => $qrCodeData['code'],
-                'user_id' => $authUserId
+                'user_id' => Auth::id(),
+                'slug' => $slug
             ]);
 
             return $whatsapp;

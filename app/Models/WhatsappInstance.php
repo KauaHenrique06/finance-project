@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\HasUuidV7;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WhatsappInstance extends Model
 {
@@ -19,7 +20,8 @@ class WhatsappInstance extends Model
         'evolution_id',
         'number',
         'owner_jid',
-        'connected_at'
+        'connected_at',
+        'slug'
     ];
 
     protected function casts(): array
@@ -33,7 +35,8 @@ class WhatsappInstance extends Model
             'evolution_id' => 'string',
             'number' => 'string',
             'owner_jid' => 'string',
-            'connected_at' => 'datetime'
+            'connected_at' => 'datetime',
+            'slug' => 'string'
         ];
     }
 
