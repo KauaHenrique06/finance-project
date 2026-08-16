@@ -12,6 +12,8 @@ class WhatsappWebhookController extends Controller
 {
     public function handle (Request $request)
     {
+        $qrcodeData = $request->input('data.qrcode');
+        Log::info($qrcodeData);
         $event = $request['event'];
         $instance = WhatsappInstance::where('slug', $request['instance'])->first();
 
@@ -23,7 +25,7 @@ class WhatsappWebhookController extends Controller
         
         match ($event)
         {
-            'qrcode.updated' => $this->handleQrCodeUpdate($event, $instance),
+            'qrcode.updated' => $this->handleQrCodeUpdate($qrcodeData, $instance),
             'connection.update' => $this->handleConnectionUpdate($request->toArray(), $instance),
             default => Log::debug('Event ignored: ' . $event)
         };
@@ -31,9 +33,23 @@ class WhatsappWebhookController extends Controller
         return response()->noContent();
     }
 
-    protected function handleQrCodeUpdate(string $event, WhatsappInstance $instance) 
+    protected function handleQrCodeUpdate(array $qrcodeData, WhatsappInstance $instance) 
     {
-       
+        if ($instance->status === 'connecting') 
+        {
+            $instance->update([
+                'qrcode_code' => $qrcodeData['code'],
+                'qrcode_base64' => $qrcodeData['base64']
+            ]);
+            Log::info('Qr Code updated!');
+            return;
+        }
+
+        $returnMessage = $instance->status === 'connected'
+            ? Log::info('Instance connected!')
+            : Log::info('Connection closed!');
+        
+        return $returnMessage;
     }
 
     protected function handleConnectionUpdate(array $request, WhatsappInstance $instance) 
