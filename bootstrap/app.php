@@ -11,7 +11,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Exception\MethodNotAllowedException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -29,14 +29,18 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('auth.api', [JwtAuthMiddleware::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->renderable(fn(AuthenticationException $e) => ApiResponse::error(message: "Your credentials are invalid!: " . $e->getMessage()));
-        $exceptions->renderable(fn(AuthorizationException $e) => ApiResponse::error(message: "You don't have permission for make this action!" . $e->getMessage()));
-        $exceptions->renderable(fn(ModelNotFoundException $e) => ApiResponse::error(message: "Resources not found!: " . $e->getMessage()));
-        $exceptions->renderable(fn(NotFoundHttpException $e) => ApiResponse::error(message: "Route not found!: " . $e->getMessage()));
-        $exceptions->renderable(fn(MethodNotAllowedException $e) => ApiResponse::error(message: "Method not found!: " . $e->getMessage()));
-        $exceptions->renderable(fn(BadMethodCallException $e) => ApiResponse::error(message: "Method not found!: " . $e->getMessage()));
-        $exceptions->renderable(fn(ValidationException $e) => ApiResponse::error(message: $e->getMessage()));
-        $exceptions->renderable(fn(AccessDeniedHttpException $e) => ApiResponse::error(message: "Access denied!" . $e->getMessage()));
-        $exceptions->renderable(fn(Throwable $e) => ApiResponse::error(message: "Server internal error!: " . $e->getMessage())); 
+        $exceptions->renderable(fn(AuthenticationException $e) => ApiResponse::error(message: "Your credentials are invalid!: " . $e->getMessage(), code: 401));
+        $exceptions->renderable(fn(AuthorizationException $e) => ApiResponse::error(message: "You don't have permission for make this action!" . $e->getMessage(), code: 403));
+        $exceptions->renderable(fn(NotFoundHttpException $e) => ApiResponse::error(
+            message: $e->getPrevious() instanceof ModelNotFoundException
+                ? "Resources not found!: " . $e->getPrevious()->getMessage()
+                : "Route not found!: " . $e->getMessage(),
+            code: 404
+        ));
+        $exceptions->renderable(fn(MethodNotAllowedHttpException $e) => ApiResponse::error(message: "Method not allowed!: " . $e->getMessage(), code: 405));
+        $exceptions->renderable(fn(BadMethodCallException $e) => ApiResponse::error(message: "Method not found!: " . $e->getMessage(), code: 500));
+        $exceptions->renderable(fn(ValidationException $e) => ApiResponse::error(message: $e->getMessage(), code: 422));
+        $exceptions->renderable(fn(AccessDeniedHttpException $e) => ApiResponse::error(message: "Access denied!" . $e->getMessage(), code: 403));
+        $exceptions->renderable(fn(Throwable $e) => ApiResponse::error(message: "Server internal error!: " . $e->getMessage(), code: 500));
     })->create();
 
