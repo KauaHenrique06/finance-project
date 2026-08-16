@@ -2,11 +2,13 @@
 
 namespace App\Http\Resources\Transaction;
 
+use App\Http\Resources\Concerns\InteractsWithPagination;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class TransactionCollection extends ResourceCollection
 {
+    use InteractsWithPagination;
 
     public $collects = TransactionResource::class;
 
@@ -19,9 +21,7 @@ class TransactionCollection extends ResourceCollection
     {
         return [
             'data' => $this->collection,
-            'pagination' => [
-                //
-            ]
+            'pagination' => $this->paginationMeta(),
         ];
     }
 }
