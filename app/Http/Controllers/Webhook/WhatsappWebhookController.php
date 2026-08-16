@@ -13,11 +13,11 @@ class WhatsappWebhookController extends Controller
     public function handle (Request $request)
     {
         $event = $request['event'];
-        $instance = WhatsappInstance::where('name', $request['instance'])->first();
+        $instance = WhatsappInstance::where('slug', $request['instance'])->first();
 
         if (!$instance)
         {
-            Log::info('Instance not found!');
+            Log::info('Instance not found!', ['instance' => $request['instance']]);
             return response()->noContent();
         }
         
@@ -33,7 +33,7 @@ class WhatsappWebhookController extends Controller
 
     protected function handleQrCodeUpdate(string $event, WhatsappInstance $instance) 
     {
-
+       
     }
 
     protected function handleConnectionUpdate(array $request, WhatsappInstance $instance) 

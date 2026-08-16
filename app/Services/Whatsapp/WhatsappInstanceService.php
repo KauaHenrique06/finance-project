@@ -34,7 +34,7 @@ class WhatsappInstanceService
                 'url' => config('services.evolution.webhook_url'),
                 'events' => [
                     'CONNECTION_UPDATE',
-                    // 'MESSAGES_UPSERT',
+                    'QRCODE_UPDATED',
                     // 'SEND_MESSAGE'
                 ]
             ]
