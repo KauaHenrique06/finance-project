@@ -8,14 +8,24 @@ use App\Http\Requests\Auth\StoreUserRequest;
 use App\Http\Resources\Auth\AuthResource;
 use App\Services\Auth\AuthService;
 use App\Support\ApiResponse;
+use Illuminate\Http\JsonResponse;
 
+/**
+ * @tags Auth
+ */
 class AuthController extends Controller
 {
-
     public function __construct(protected AuthService $authService) {}
 
-    public function register(StoreUserRequest $request) {
-
+    /**
+     * Register a user
+     *
+     * Creates the account and notifies the administrators.
+     *
+     * @unauthenticated
+     */
+    public function register(StoreUserRequest $request): JsonResponse
+    {
         $data = $this->authService->register($request->validated());
         return ApiResponse::success(
             new AuthResource($data),
@@ -24,8 +34,16 @@ class AuthController extends Controller
         );
     }
 
-    public function login(LoginUserRequest $request) {
-
+    /**
+     * Log in
+     *
+     * Returns the JWT along with the authenticated user. Send the token as
+     * `Authorization: Bearer <token>` on every other endpoint.
+     *
+     * @unauthenticated
+     */
+    public function login(LoginUserRequest $request): JsonResponse
+    {
         $data = $this->authService->login($request->validated());
         return ApiResponse::success(
             $data,
@@ -34,25 +52,33 @@ class AuthController extends Controller
         );
     }
 
-    public function me() {
-
+    /**
+     * Get the authenticated user
+     *
+     * Returns the current profile with its roles and permissions loaded.
+     */
+    public function me(): JsonResponse
+    {
         $data = $this->authService->me();
         return ApiResponse::success(
             new AuthResource($data),
             'Profile loaded with success',
             200
         );
-
     }
 
-    public function refreshToken() {
-
+    /**
+     * Refresh the JWT
+     *
+     * Exchanges the current token for a new one.
+     */
+    public function refreshToken(): JsonResponse
+    {
         $data = $this->authService->refreshToken();
         return ApiResponse::success(
             $data,
             'Token refreshed with success!',
             200
         );
-
     }
 }

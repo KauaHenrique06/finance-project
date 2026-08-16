@@ -50,7 +50,15 @@ return [
         /*
          * Description rendered on the home page of the API documentation (`/docs/api`).
          */
-        'description' => '',
+        'description' => <<<'MD'
+            Autenticação por JWT: chame `POST /api/auth/login` e envie o token retornado
+            como `Authorization: Bearer <token>` nos demais endpoints.
+
+            Todas as respostas usam o mesmo envelope: `{ "error": false, "message": "...", "data": ... }`.
+
+            Eventos em tempo real (status da instância e QR code) não passam por HTTP —
+            são entregues por websocket via Reverb, no canal privado `whatsapp-instance.{userId}`.
+            MD,
     ],
 
     'ui' => [

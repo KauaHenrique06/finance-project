@@ -7,12 +7,21 @@ use App\Http\Requests\Transaction\MarkTransactionAsPaidRequest;
 use App\Http\Resources\Transaction\TransactionResource;
 use App\Services\Transaction\TransactionService;
 use App\Support\ApiResponse;
+use Illuminate\Http\JsonResponse;
 
+/**
+ * @tags Transaction
+ */
 class TransactionController extends Controller
 {
     public function __construct(protected TransactionService $transactionService) {}
 
-    public function markTransactionAsPaid(MarkTransactionAsPaidRequest $request)
+    /**
+     * Mark a transaction as paid
+     *
+     * Settles a single instalment and records the payer and the payment date.
+     */
+    public function markTransactionAsPaid(MarkTransactionAsPaidRequest $request): JsonResponse
     {
         $data = $this->transactionService->markTransactionAsPaid($request->validated());
         return ApiResponse::success(
@@ -21,5 +30,4 @@ class TransactionController extends Controller
             200
         );
     }
-
 }

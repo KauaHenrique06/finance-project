@@ -8,8 +8,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * @tags Webhook
+ */
 class WhatsappWebhookController extends Controller
 {
+    /**
+     * Evolution API webhook
+     *
+     * Consumed by the Evolution API, not by the front-end. Handles the
+     * `qrcode.updated` and `connection.update` events and always answers
+     * `204`, so a failure on our side never makes Evolution retry.
+     *
+     * @unauthenticated
+     */
     public function handle (Request $request)
     {
         $qrcodeData = $request->input('data.qrcode');
