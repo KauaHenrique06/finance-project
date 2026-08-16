@@ -1,12 +1,12 @@
-<?php 
+<?php
 
 use App\Http\Controllers\User\UserController;
+use Illuminate\Support\Facades\Route;
 
-// Rotas não autenticadas
 Route::post('/forgot-password', [UserController::class, 'forgotPassword']);
 Route::post('/reset-password', [UserController::class, 'resetPassword']);
 
 Route::middleware('auth.api')->group(function() {
-    Route::patch('/{id}', [UserController::class, 'update']);
-    Route::patch('/change-password/{id}', [UserController::class, 'changePassword']);
+    Route::patch('/{id}', [UserController::class, 'update'])->middleware('can:user.update');
+    Route::patch('/change-password/{id}', [UserController::class, 'changePassword'])->middleware('can:user.update');
 });

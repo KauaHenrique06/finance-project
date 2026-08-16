@@ -18,6 +18,8 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService {
 
+    public const DEFAULT_ROLE = 'client';
+
     public function __construct(protected AddressService $addressService) {}
 
     public function register(array $data): User {
@@ -39,6 +41,8 @@ class AuthService {
             // $data = array_merge($data, ['address_id' => $createAddress->id]);
             $user = User::create($data);
             $user->refresh();
+
+            $user->assignRole(self::DEFAULT_ROLE);
 
             if (isset($data['profile_pic'])) 
             {
@@ -64,7 +68,7 @@ class AuthService {
 
             SendWelcomeEmail::dispatch($user);
 
-            return $user;
+            return $user->load(['roles', 'permissions']);
         });
     }
 
