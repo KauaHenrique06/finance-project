@@ -2,22 +2,25 @@
 
 namespace App\Events;
 
-use App\Models\Notification;
+use App\Models\WhatsappInstance;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NotificationEvent implements ShouldBroadcast
+class WhatsappInstanceEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(private Notification $notification) {}
+    public function __construct(private WhatsappInstance $whatsappInstance)
+    {
+        //
+    }
 
     /**
      * Get the channels the event should broadcast on.
@@ -27,17 +30,11 @@ class NotificationEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("notification.{$this->notification->user_id}"),
+            new PrivateChannel("whatsapp-instance.{$this->whatsappInstance->user_id}"),
         ];
     }
 
-    /**
-     * Inform data that will be returned  
-     * 
-     * Summary of broadcastsWith
-     * @return array{data: Notification}
-     */
     public function broadcastWith() {
-        return ['data' => $this->notification];
+        return ['data' => $this->whatsappInstance];
     }
 }

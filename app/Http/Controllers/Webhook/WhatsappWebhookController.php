@@ -13,7 +13,6 @@ class WhatsappWebhookController extends Controller
     public function handle (Request $request)
     {
         $qrcodeData = $request->input('data.qrcode');
-        Log::info($qrcodeData);
         $event = $request['event'];
         $instance = WhatsappInstance::where('slug', $request['instance'])->first();
 

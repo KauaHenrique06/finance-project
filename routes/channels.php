@@ -5,3 +5,7 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('notification.{id}', function ($user, $id) {
     return $user->id === $id;
 });
+
+Broadcast::channel('whatsapp-instance.{id}', function ($user, $id) {
+    return $user->id === $id;
+});
