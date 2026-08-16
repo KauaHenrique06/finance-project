@@ -21,6 +21,11 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
+    ->withBroadcasting(
+        __DIR__.'/../routes/channels.php',
+        ['middleware' => ['auth.api']],
+    )
+
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->appendToGroup('auth.api', [JwtAuthMiddleware::class]);
     })

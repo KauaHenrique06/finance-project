@@ -2,10 +2,38 @@ services:
   app:
     build:
       context: .
+    command: php artisan serve --host=0.0.0.0 --port=8000
     volumes:
       - .:/var/www/html
     ports:
       - "8000:8000"              
+    networks:
+      - finance-project-network
+    depends_on:
+      - db
+      - redis
+
+  reverb:
+    build:
+      context: .
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8080:8080"
+    networks:
+      - finance-project-network
+    depends_on:
+      - redis
+
+  horizon:
+    build:
+      context: .
+    command: php artisan horizon
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
     networks:
       - finance-project-network
     depends_on:
