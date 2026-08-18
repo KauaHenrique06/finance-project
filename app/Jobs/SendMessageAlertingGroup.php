@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\GroupTransaction;
+use App\Models\Notification;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\WhatsappInstance;
@@ -30,6 +31,21 @@ class SendMessageAlertingGroup implements ShouldQueue
 
         $group = GroupTransaction::with(['participant', 'owner'])->findOrFail($this->transaction->group_id);
         $instance = WhatsappInstance::findOrFail($group->instance_id);
+
+        if ($instance->status !== 'connected')
+        {
+            Notification::create([
+                'message' => "The instance {$instance->name} of this group is disconnected!",
+                'type' => 'instance_disconnect',
+                'user_id' => $group->owner_id,
+                'data' => [
+                    'instance_id' => $instance->id,
+                    'instance_name' => $instance->name,
+                    'owner_id' => $group->owner_id, 
+                    'owner_name' => $group->owner->name, 
+                ],
+            ]);
+        }
 
         $quantityInstallment = Transaction::where('group_id', $group->id)->count();
 

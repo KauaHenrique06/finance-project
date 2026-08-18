@@ -3,6 +3,8 @@
 namespace App\Services\Transaction;
 
 use App\Enum\TransactionStatusEnum;
+use App\Exceptions\ApiException;
+use App\Models\GroupTransaction;
 use App\Models\Notification;
 use App\Models\Transaction;
 use App\Models\User;
@@ -17,20 +19,31 @@ class TransactionService
 
         $authUserId = Auth::id();
         $transaction = Transaction::findOrFail($data['id']);
+        $group = GroupTransaction::where('id', $transaction->group_id)->firstOrFail();
 
-        $usersToNotificate = User::where(function ($query) use ($transaction) {
-                $query->where('id', $transaction->groupTransaction->owner_id)
-                    ->orWhereHas('participantGroupTransaction', function ($query) use ($transaction) {
-                        $query->where('group_transaction.id', $transaction->group_id);
-                    });
-            })
-            ->get();
+        $usersCanPay = $group->participant()
+            ->pluck('participant_id')
+            ->push($group->owner_id)
+            ->unique()
+            ->values();
 
         $payerId = !empty($data['payer_id'])
             ? $data['payer_id']
             : $authUserId;
 
-        return DB::transaction(function () use ($data, $transaction, $usersToNotificate, $payerId) {
+        if (!$usersCanPay->contains($authUserId))
+        {
+            throw new ApiException("You can't mark this transaction as paid!", 403);
+        }
+
+        if (!$usersCanPay->contains($payerId))
+        {
+            throw new ApiException("The payer must be a member of the group!", 403);
+        }
+
+        $usersToNotificate = User::whereIn('id', $usersCanPay)->get();
+
+        return DB::transaction(function () use ($data, $transaction, $group, $usersToNotificate, $payerId) {
 
             $transaction->update([
                 'is_paid' => $data['is_paid'],
@@ -42,7 +55,7 @@ class TransactionService
             $notifyData = [
                 'usersToNotificate' => $usersToNotificate,
                 'message' => "User {{name}} mark transaction as paid!",
-                'data' => ['transaction_id' => $transaction->id, 'transaction_title' => $transaction->title]
+                'data' => ['transaction_id' => $transaction->id, 'transaction_title' => $group->title]
             ];
 
             TransactionService::sendNotify($notifyData);
@@ -62,7 +75,7 @@ class TransactionService
                 'user_id' => $user->id,
                 'type' => 'transaction',
                 'message' => $message,
-                'read_at' => false,
+                'read_at' => null,
                 'data' => $data['data']
             ]);
         }
