@@ -2,14 +2,12 @@
 
 namespace App\Http\Resources\Transaction;
 
-use App\Http\Resources\Concerns\InteractsWithPagination;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class TransactionCollection extends ResourceCollection
 {
-    use InteractsWithPagination;
-
     public $collects = TransactionResource::class;
 
     /**
@@ -21,7 +19,12 @@ class TransactionCollection extends ResourceCollection
     {
         return [
             'data' => $this->collection,
-            'pagination' => $this->paginationMeta(),
+            'pagination' => [
+                'current_page' => $this->currentPage(),
+                'last_page' => $this->lastPage(),
+                'per_page' => $this->perPage(),
+                'total' => $this->total(),
+            ]
         ];
     }
 }

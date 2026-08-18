@@ -2,14 +2,11 @@
 
 namespace App\Http\Resources\Transaction;
 
-use App\Http\Resources\Concerns\InteractsWithPagination;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class GroupTransactionCollection extends ResourceCollection
 {
-    use InteractsWithPagination;
-
     public $collects = GroupTransactionResource::class;
 
     /**
@@ -21,7 +18,12 @@ class GroupTransactionCollection extends ResourceCollection
     {
         return [
             'data' => $this->collection,
-            'pagination' => $this->paginationMeta(),
+            'pagination' => [
+                'current_page' => $this->currentPage(),
+                'last_page' => $this->lastPage(),
+                'per_page' => $this->perPage(),
+                'total' => $this->total(),
+            ]
         ];
     }
 }
