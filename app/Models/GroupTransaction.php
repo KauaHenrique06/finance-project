@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use App\Policies\Transaction\GroupTransactionPolicy;
 use App\Traits\HasUuidV7;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[UsePolicy(GroupTransactionPolicy::class)]
 class GroupTransaction extends Model
 {
     use HasUuidV7, SoftDeletes;
