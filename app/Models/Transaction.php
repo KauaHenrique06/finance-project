@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enum\TransactionStatusEnum;
 use App\Traits\HasUuidV7;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,11 +14,8 @@ class Transaction extends Model
     use HasUuidV7, SoftDeletes;
 
     protected $fillable = [
-        'title',
-        'description',
         'has_installment',
         'quantity_installment',
-        'owner_id',
         'status',
         'is_paid',
         'installment_number',
@@ -31,11 +29,8 @@ class Transaction extends Model
     protected function casts(): array
     {
         return [
-            'title' => 'string',
-            'description' => 'string',
             'has_installment' => 'boolean',
             'quantity_installment' => 'integer',
-            'owner_id' => 'string',
             'status' => TransactionStatusEnum::class,
             'is_paid' => 'boolean',
             'installment_number' => 'integer',
