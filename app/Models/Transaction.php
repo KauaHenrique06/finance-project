@@ -4,7 +4,8 @@ namespace App\Models;
 
 use App\Enum\TransactionStatusEnum;
 use App\Traits\HasUuidV7;
-use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -40,6 +41,12 @@ class Transaction extends Model
             'payer_id' => 'string',
             'amount' => 'decimal:2',
         ];
+    }
+
+    #[Scope]
+    protected function visibleTo(Builder $query, string $authUserId): void
+    {
+        $query->whereHas('groupTransaction', fn ($q) => $q->visibleTo($authUserId));
     }
 
     public function payer(): BelongsTo

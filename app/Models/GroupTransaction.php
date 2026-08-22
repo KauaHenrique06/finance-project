@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Policies\Transaction\GroupTransactionPolicy;
 use App\Traits\HasUuidV7;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -35,6 +37,15 @@ class GroupTransaction extends Model
             'instance_id' => 'string',
             'total_amount' => 'decimal:2'
         ];
+    }
+
+    #[Scope]
+    protected function visibleTo(Builder $query, string $authUserId): void
+    {
+        $query->where(function ($q) use ($authUserId) {
+            $q->where('owner_id', $authUserId)
+            ->orWhereHas('participant', fn ($subQ) => $subQ->whereKey($authUserId));
+        }); 
     }
 
     public function owner(): BelongsTo
