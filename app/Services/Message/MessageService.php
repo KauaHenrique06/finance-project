@@ -27,6 +27,18 @@ class MessageService
         // Send only to others integrants
         broadcast(new MessageSentEvent($message))->toOthers();
 
-        return $message;
+        return $message->load('user');
+    }
+
+    public function index(array $data)
+    {
+        $group = GroupTransaction::findOrFail($data['id']);
+
+        Gate::authorize('view', $group);
+
+        return Message::with('user')
+            ->where('group_id', $data['id'])
+            ->latest()
+            ->paginate($data['perPage'], ['*'], 'page', $data['page']);
     }
 }

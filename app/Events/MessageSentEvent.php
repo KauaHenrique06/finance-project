@@ -2,10 +2,10 @@
 
 namespace App\Events;
 
+use App\Http\Resources\Message\MessageResource;
 use App\Models\Message;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -34,6 +34,6 @@ class MessageSentEvent implements ShouldBroadcast
 
     public function broadcastWith(): array
     {
-        return ['data' => $this->message];
+        return ['data' => new MessageResource($this->message->load('user'))];
     }
 }
