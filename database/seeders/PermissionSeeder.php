@@ -21,6 +21,8 @@ class PermissionSeeder extends Seeder
         'transactionGroup.delete' => 'Excluir grupos de transação',
         'transactionGroup.assignParticipant' => 'Adicionar participantes ao grupo',
         'transactionGroup.assignInstance' => 'Vincular instância do WhatsApp ao grupo',
+        'transactionGroup.viewMessage' => 'Visualizar mensagens do grupo',
+        'transactionGroup.sendMessage' => 'Enviar mensagens no grupo',
 
         'whatsapp.view' => 'Visualizar instâncias do WhatsApp',
         'whatsapp.create' => 'Criar instâncias do WhatsApp',
@@ -49,6 +51,8 @@ class PermissionSeeder extends Seeder
         'transactionGroup.delete',
         'transactionGroup.assignParticipant',
         'transactionGroup.assignInstance',
+        'transactionGroup.viewMessage',
+        'transactionGroup.sendMessage',
 
         'whatsapp.view',
         'whatsapp.create',
