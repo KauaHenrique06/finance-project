@@ -39,6 +39,7 @@ class GroupTransaction extends Model
         ];
     }
 
+    // Return the query builder for continue mount
     #[Scope]
     protected function visibleTo(Builder $query, string $authUserId): void
     {
@@ -69,5 +70,10 @@ class GroupTransaction extends Model
     public function whatsappInstance(): BelongsTo
     {
         return $this->belongsTo(WhatsappInstance::class, 'instance_id');
+    }
+
+    public function message(): HasMany
+    {
+        return $this->hasMany(Message::class, 'group_id');
     }
 }
