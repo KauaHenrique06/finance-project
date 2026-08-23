@@ -45,9 +45,9 @@ class WhatsappInstance extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function groupTransaction(): HasMany
+    public function event(): HasMany
     {
-        return $this->hasMany(GroupTransaction::class, 'instance_id');
+        return $this->hasMany(Event::class, 'instance_id');
     }
 
 }

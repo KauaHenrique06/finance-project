@@ -23,9 +23,9 @@ class GroupTransaction extends Model
     protected $fillable = [
         'title',
         'description',
+        'total_amount',
         'owner_id',
-        'instance_id',
-        'total_amount'
+        'event_id'
     ];
 
     protected function casts(): array
@@ -34,7 +34,7 @@ class GroupTransaction extends Model
             'title' => 'string',
             'description' => 'string',
             'owner_id' => 'string',
-            'instance_id' => 'string',
+            'event_id' => 'string',
             'total_amount' => 'decimal:2'
         ];
     }
@@ -67,13 +67,13 @@ class GroupTransaction extends Model
             ->withTimestamps();
     }
 
-    public function whatsappInstance(): BelongsTo
-    {
-        return $this->belongsTo(WhatsappInstance::class, 'instance_id');
-    }
-
     public function message(): HasMany
     {
         return $this->hasMany(Message::class, 'group_id');
+    }
+
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class);
     }
 }

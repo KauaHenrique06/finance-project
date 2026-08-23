@@ -135,9 +135,15 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         return $this->hasMany(WhatsappInstance::class);
     }
 
+    // Chat
     public function message(): HasMany
     {
         return $this->hasMany(Message::class);
+    }
+
+    public function ownerEvent(): HasMany
+    {
+        return $this->hasMany(Event::class, 'owner_id');
     }
 
 }
