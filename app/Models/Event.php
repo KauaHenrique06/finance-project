@@ -41,6 +41,6 @@ class Event extends Model
 
     public function group(): HasMany
     {
-        return $this->hasMany(GroupTransaction::class);
+        return $this->hasMany(Group::class);
     }
 }

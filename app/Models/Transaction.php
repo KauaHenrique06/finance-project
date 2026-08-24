@@ -46,7 +46,7 @@ class Transaction extends Model
     #[Scope]
     protected function visibleTo(Builder $query, string $authUserId): void
     {
-        $query->whereHas('groupTransaction', fn ($q) => $q->visibleTo($authUserId));
+        $query->whereHas('group', fn ($q) => $q->visibleTo($authUserId));
     }
 
     public function payer(): BelongsTo
@@ -54,8 +54,8 @@ class Transaction extends Model
         return $this->belongsTo(User::class, 'payer_id');
     }
 
-    public function groupTransaction(): BelongsTo
+    public function group(): BelongsTo
     {
-        return $this->belongsTo(GroupTransaction::class, 'group_id');
+        return $this->belongsTo(Group::class, 'group_id');
     }
 }

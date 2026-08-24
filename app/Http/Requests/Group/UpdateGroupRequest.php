@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Transaction;
+namespace App\Http\Requests\Group;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateTransactionGroupRequest extends FormRequest
+class UpdateGroupRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,7 +26,7 @@ class UpdateTransactionGroupRequest extends FormRequest
             'id' => [
                 'required',
                 'uuid',
-                'exists:group_transaction,id'
+                'exists:groups,id'
             ],
             'title' => [
                 'sometimes',

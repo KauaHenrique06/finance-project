@@ -3,7 +3,7 @@
 namespace App\Services\Message;
 
 use App\Events\MessageSentEvent;
-use App\Models\GroupTransaction;
+use App\Models\Group;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +18,7 @@ class MessageService
             'group_id' => $data['id']
         ]);
 
-        $group = GroupTransaction::findOrFail($data['id']);
+        $group = Group::findOrFail($data['id']);
 
         Gate::authorize('view', $group);
 
@@ -32,7 +32,7 @@ class MessageService
 
     public function index(array $data)
     {
-        $group = GroupTransaction::findOrFail($data['id']);
+        $group = Group::findOrFail($data['id']);
 
         Gate::authorize('view', $group);
 

@@ -4,7 +4,7 @@ namespace App\Services\Transaction;
 
 use App\Enum\TransactionStatusEnum;
 use App\Exceptions\ApiException;
-use App\Models\GroupTransaction;
+use App\Models\Group;
 use App\Models\Notification;
 use App\Models\Transaction;
 use App\Models\User;
@@ -19,7 +19,7 @@ class TransactionService
 
         $authUserId = Auth::id();
         $transaction = Transaction::findOrFail($data['id']);
-        $group = GroupTransaction::where('id', $transaction->group_id)->firstOrFail();
+        $group = Group::where('id', $transaction->group_id)->firstOrFail();
 
         $usersCanPay = $group->participant()
             ->pluck('participant_id')

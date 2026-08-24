@@ -3,7 +3,7 @@
 namespace App\Services\Whatsapp;
 
 use App\Exceptions\ApiException;
-use App\Models\GroupTransaction;
+use App\Models\Group;
 use App\Models\WhatsappInstance;
 use App\Support\Ownership;
 use Auth;

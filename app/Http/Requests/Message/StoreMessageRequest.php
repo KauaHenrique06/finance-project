@@ -30,7 +30,7 @@ class StoreMessageRequest extends FormRequest
             'id' => [
                 'required',
                 'uuid',
-                'exists:group_transaction,id'
+                'exists:groups,id'
             ],
         ];
     }

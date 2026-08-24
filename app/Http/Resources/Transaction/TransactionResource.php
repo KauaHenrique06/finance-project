@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Transaction;
 
 use App\Http\Resources\Auth\AuthResource;
+use App\Http\Resources\Group\GroupResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,7 +18,7 @@ class TransactionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'group' => new GroupTransactionResource($this->whenLoaded('groupTransaction')),
+            'group' => new GroupResource($this->whenLoaded('group')),
             'has_installment' => $this->has_installment,
             'amount' => $this->amount,
             'due_date' => $this->due_date,

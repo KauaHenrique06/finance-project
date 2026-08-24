@@ -7,16 +7,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class TransactionUser extends Pivot
+class GroupUser extends Pivot
 {
     use HasUuidV7, SoftDeletes;
 
-    protected $table = 'transaction_user';
+    protected $table = 'group_user';
 
     protected $fillable = [
         'participant_id',
         'group_id',
-        'can_edit'
+        'amount',
+        'is_paid'
     ];
 
     public function casts(): array
@@ -24,13 +25,14 @@ class TransactionUser extends Pivot
         return [
             'participant_id' => 'string',
             'group_id' => 'string',
-            'can_edit' => 'boolean'
+            'amount' => 'decimal:2',
+            'is_paid' => 'boolean'
         ];
     }
 
-    public function groupTransaction(): BelongsTo
+    public function group(): BelongsTo
     {
-        return $this->belongsTo(GroupTransaction::class, 'group_id');
+        return $this->belongsTo(Group::class, 'group_id');
     }
 
     public function participant(): BelongsTo

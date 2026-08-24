@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Resources\Transaction;
+namespace App\Http\Resources\Group;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class GroupTransactionCollection extends ResourceCollection
+class GroupCollection extends ResourceCollection
 {
-    public $collects = GroupTransactionResource::class;
+    public $collects = GroupResource::class;
 
     /**
      * Transform the resource collection into an array.

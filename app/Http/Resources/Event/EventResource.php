@@ -3,7 +3,7 @@
 namespace App\Http\Resources\Event;
 
 use App\Http\Resources\Auth\AuthResource;
-use App\Http\Resources\Transaction\GroupTransactionResource;
+use App\Http\Resources\Group\GroupResource;
 use App\Http\Resources\Whatsapp\WhatsappInstanceResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -23,7 +23,7 @@ class EventResource extends JsonResource
             'description' => $this->description,
             'owner' => new AuthResource($this->whenLoaded('owner')),
             'instance' => new WhatsappInstanceResource($this->whenLoaded('instance')),
-            'group' => GroupTransactionResource::collection($this->whenLoaded('group')),
+            'group' => GroupResource::collection($this->whenLoaded('group')),
         ];
     }
 }

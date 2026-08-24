@@ -28,7 +28,7 @@ class IndexMessageRequest extends FormRequest
             'id' => [
                 'required',
                 'uuid',
-                'exists:group_transaction,id'
+                'exists:groups,id'
             ],
             ...PageRuleHelper::rules(),
             ...PerPageRuleHelper::rules(),

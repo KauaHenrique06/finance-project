@@ -114,8 +114,8 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         return $this->hasOne(Address::class);
     }
 
-    public function ownerGroupTransaction(): HasMany {
-        return $this->hasMany(GroupTransaction::class, 'owner_id');
+    public function ownerGroup(): HasMany {
+        return $this->hasMany(Group::class, 'owner_id');
     }
 
     public function payerTransaction(): HasMany
@@ -123,10 +123,10 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         return $this->hasMany(Transaction::class, 'payer_id');
     }
 
-    public function participantGroupTransaction(): BelongsToMany {
-        return $this->belongsToMany(GroupTransaction::class, 'transaction_user', 'participant_id', 'group_id')
-            ->using(TransactionUser::class)
-            ->withPivot('can_edit')
+    public function participantGroup(): BelongsToMany {
+        return $this->belongsToMany(Group::class, 'group_user', 'participant_id', 'group_id')
+            ->using(GroupUser::class)
+            ->withPivot('amount', 'is_paid')
             ->withTimestamps();
     }
 

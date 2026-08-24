@@ -1,7 +1,6 @@
 <?php 
 
 use App\Http\Controllers\Event\EventController;
-use App\Http\Controllers\Transaction\GroupTransactionController;
 
 Route::middleware('auth.api')->group(function () {
     Route::get('/', [EventController::class, 'index']);

@@ -28,7 +28,7 @@ class Message extends Model
 
     public function group(): BelongsTo
     {
-        return $this->belongsTo(GroupTransaction::class);
+        return $this->belongsTo(Group::class);
     }
 
     public function user(): BelongsTo

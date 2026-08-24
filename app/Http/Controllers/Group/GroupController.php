@@ -1,39 +1,39 @@
 <?php
 
-namespace App\Http\Controllers\Transaction;
+namespace App\Http\Controllers\Group;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Transaction\AssignInstanceToGroupRequest;
-use App\Http\Requests\Transaction\AssignUserToTransactionGroupRequest;
-use App\Http\Requests\Transaction\DeleteTransactionGroupRequest;
-use App\Http\Requests\Transaction\IndexGroupTransactionRequest;
-use App\Http\Requests\Transaction\IndexTransactionByGroupIdRequest;
+use App\Http\Requests\Group\AssignInstanceToGroupRequest;
+use App\Http\Requests\Group\AssignUserToGroupRequest;
+use App\Http\Requests\Group\DeleteGroupRequest;
+use App\Http\Requests\Group\IndexGroupRequest;
+use App\Http\Requests\Group\IndexTransactionByGroupIdRequest;
+use App\Http\Requests\Group\UpdateGroupRequest;
 use App\Http\Requests\Transaction\StoreTransactionRequest;
-use App\Http\Requests\Transaction\UpdateTransactionGroupRequest;
-use App\Http\Resources\Transaction\GroupTransactionCollection;
-use App\Http\Resources\Transaction\GroupTransactionResource;
+use App\Http\Resources\Group\GroupCollection;
+use App\Http\Resources\Group\GroupResource;
 use App\Http\Resources\Transaction\TransactionCollection;
-use App\Services\Transaction\GroupTransactionService;
+use App\Services\Group\GroupService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 
 /**
- * @tags GroupTransaction
+ * @tags Group
  */
-class GroupTransactionController extends Controller
+class GroupController extends Controller
 {
-    public function __construct(protected GroupTransactionService $groupTransactionService) {}
+    public function __construct(protected GroupService $groupService) {}
 
     /**
      * Index a user transaction group
      * 
      * 
      */
-    public function index(IndexGroupTransactionRequest $request)
+    public function index(IndexGroupRequest $request)
     {
-        $data = $this->groupTransactionService->index($request->validated());
+        $data = $this->groupService->index($request->validated());
         return ApiResponse::success(
-            new GroupTransactionCollection($data),
+            new GroupCollection($data),
             'Transactions group was indexed with success!',
             200
         );
@@ -47,9 +47,9 @@ class GroupTransactionController extends Controller
      */
     public function store(StoreTransactionRequest $request): JsonResponse
     {
-        $data = $this->groupTransactionService->store($request->validated());
+        $data = $this->groupService->store($request->validated());
         return ApiResponse::success(
-            new GroupTransactionResource($data),
+            new GroupResource($data),
             'Transaction group was created with success!',
             201
         );
@@ -60,7 +60,7 @@ class GroupTransactionController extends Controller
      */
     public function indexTransactionByGroupId(IndexTransactionByGroupIdRequest $request): JsonResponse
     {
-        $data = $this->groupTransactionService->indexTransactionByGroupId($request->validated());
+        $data = $this->groupService->indexTransactionByGroupId($request->validated());
         return ApiResponse::success(
             new TransactionCollection($data),
             'Transactions was indexed with success!',
@@ -73,9 +73,9 @@ class GroupTransactionController extends Controller
      *
      * Removes the group along with every transaction attached to it.
      */
-    public function destroy(DeleteTransactionGroupRequest $request): JsonResponse
+    public function destroy(DeleteGroupRequest $request): JsonResponse
     {
-        $this->groupTransactionService->destroy($request->validated());
+        $this->groupService->destroy($request->validated());
         return ApiResponse::success(
             null,
             'Transaction group was deleted with success!',
@@ -89,11 +89,11 @@ class GroupTransactionController extends Controller
      * Update group and your transactions when send on request. Returns the
      * group with the resulting transactions.
      */
-    public function update(UpdateTransactionGroupRequest $request): JsonResponse
+    public function update(UpdateGroupRequest $request): JsonResponse
     {
-        $data = $this->groupTransactionService->update($request->validated());
+        $data = $this->groupService->update($request->validated());
         return ApiResponse::success(
-            new GroupTransactionResource($data),
+            new GroupResource($data),
             'Transaction group was updated with success!',
             200
         );
@@ -104,9 +104,9 @@ class GroupTransactionController extends Controller
      *
      * Attaches a user to the group so the amount is split with them.
      */
-    public function assignParticipant(AssignUserToTransactionGroupRequest $request): JsonResponse
+    public function assignParticipant(AssignUserToGroupRequest $request): JsonResponse
     {
-        $this->groupTransactionService->assignParticipant($request->validated());
+        $this->groupService->assignParticipant($request->validated());
         return ApiResponse::success(
             null,
             'User was assigned to group with success!',
@@ -121,7 +121,7 @@ class GroupTransactionController extends Controller
      */
     public function assignInstanceToGroup(AssignInstanceToGroupRequest $request): JsonResponse
     {
-        $this->groupTransactionService->assignInstanceToGroup($request->validated());
+        $this->groupService->assignInstanceToGroup($request->validated());
         return ApiResponse::success(
             null,
             'Instance was assigned to group with success!',

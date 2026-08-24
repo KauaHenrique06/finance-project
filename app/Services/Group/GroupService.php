@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Services\Transaction;
+namespace App\Services\Group;
 
 use App\Exceptions\ApiException;
-use App\Models\GroupTransaction;
+use App\Models\Event;
+use App\Models\Group;
+use App\Models\GroupUser;
 use App\Models\Transaction;
-use App\Models\TransactionUser;
 use App\Models\WhatsappInstance;
 use Auth;
 use Carbon\Carbon;
@@ -14,14 +15,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
-class GroupTransactionService
+class GroupService
 {
 
     public function index(array $data) 
     {
         $authUserId = Auth::id();
 
-        return GroupTransaction::with([
+        return Group::with([
             'transaction', 
             'owner', 
             'participant'
@@ -31,7 +32,7 @@ class GroupTransactionService
         ->paginate($data['perPage'], ['*'], 'page', $data['page']);
     }
 
-    public function store(array $data): GroupTransaction
+    public function store(array $data): Group
     {
         $authUserId = Auth::id();
 
@@ -41,9 +42,15 @@ class GroupTransactionService
                 ? $data['quantity_installment']
                 : 1;
 
+            $event = Event::find($data['event_id']);
+            if (!$event)
+            {
+                throw new ApiException('This event is invalid!');
+            }
+
             $nextDueDate = Carbon::parse($data['due_date']);
 
-            $group = GroupTransaction::create([
+            $group = Group::create([
                 'title' => $data['title'],
                 'description' => $data['description'],
                 'owner_id' => $authUserId,
@@ -76,17 +83,17 @@ class GroupTransactionService
 
     public function indexTransactionByGroupId(array $data): LengthAwarePaginator
     {
-        $group = GroupTransaction::findOrFail($data['id']);
+        $group = Group::findOrFail($data['id']);
         Gate::authorize('view', $group);
 
         return Transaction::where('group_id', $data['id'])
-            ->with(['groupTransaction.owner', 'groupTransaction.participant', 'payer'])
+            ->with(['group.owner', 'group.participant', 'payer'])
             ->paginate($data['perPage'], ['*'], 'page', $data['page']);
     }
 
     public function destroy(array $data): void
     {
-        $group = GroupTransaction::with('participant')->findOrFail($data['id']);
+        $group = Group::with('participant')->findOrFail($data['id']);
         Gate::authorize('delete', $group);
 
         DB::transaction(function () use ($group) {
@@ -96,9 +103,9 @@ class GroupTransactionService
         });
     }
 
-    public function update(array $data): GroupTransaction
+    public function update(array $data): Group
     {
-        $group = GroupTransaction::findOrFail($data['id']);
+        $group = Group::findOrFail($data['id']);
         Gate::authorize('update', $group);
 
         $current = $group->transaction()->orderBy('installment_number')->first();
@@ -157,15 +164,12 @@ class GroupTransactionService
 
     public function assignParticipant(array $data): void
     {
-        $group = GroupTransaction::findOrFail($data['id']);
+        $group = Group::findOrFail($data['id']);
 
         Gate::authorize('assignParticipant', $group);
 
         $participants = collect($data['user'])
-            ->keyBy('id')
-            ->map(function ($user) {
-                return ['can_edit' => $user['can_edit']];
-            })
+            ->pluck('id')
             ->toArray();
 
         DB::transaction(function () use ($group, $participants) {
@@ -175,11 +179,11 @@ class GroupTransactionService
 
     public function assignInstanceToGroup(array $data): void
     {
-        $group = GroupTransaction::findOrFail($data['id']);
+        $group = Group::findOrFail($data['id']);
         $instance = WhatsappInstance::select('id', 'user_id', 'status')->findOrFail($data['instance_id']);
         Gate::authorize('assignInstance', $group);
 
-        $usersIdPresentInGroup = TransactionUser::select('participant_id')
+        $usersIdPresentInGroup = GroupUser::select('participant_id')
             ->where('group_id', $group->id)
             ->pluck('participant_id')
             ->flatten()

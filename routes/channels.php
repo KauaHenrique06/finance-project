@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\GroupTransaction;
+use App\Models\Group;
 use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('notification.{id}', function ($user, $id) {
@@ -12,5 +12,5 @@ Broadcast::channel('whatsapp-instance.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('message-sent.{group_id}', function ($user, $groupId) {
-    return GroupTransaction::visibleTo($user->id)->whereKey($groupId)->exists();
+    return Group::visibleTo($user->id)->whereKey($groupId)->exists();
 });

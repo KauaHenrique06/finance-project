@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Policies\Transaction\GroupTransactionPolicy;
+use App\Policies\Group\GroupPolicy;
 use App\Traits\HasUuidV7;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
@@ -13,12 +13,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[UsePolicy(GroupTransactionPolicy::class)]
-class GroupTransaction extends Model
+#[UsePolicy(GroupPolicy::class)]
+class Group extends Model
 {
     use HasUuidV7, SoftDeletes;
 
-    protected $table = 'group_transaction';
+    protected $table = 'groups';
 
     protected $fillable = [
         'title',
@@ -61,9 +61,9 @@ class GroupTransaction extends Model
 
     public function participant(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'transaction_user', 'group_id', 'participant_id')
-            ->using(TransactionUser::class)
-            ->withPivot('can_edit')
+        return $this->belongsToMany(User::class, 'group_user', 'group_id', 'participant_id')
+            ->using(GroupUser::class)
+            ->withPivot('amount', 'is_paid')
             ->withTimestamps();
     }
 

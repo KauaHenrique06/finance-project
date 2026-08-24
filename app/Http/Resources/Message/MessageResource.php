@@ -3,7 +3,7 @@
 namespace App\Http\Resources\Message;
 
 use App\Http\Resources\Auth\AuthResource;
-use App\Http\Resources\Transaction\GroupTransactionResource;
+use App\Http\Resources\Group\GroupResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,7 +19,7 @@ class MessageResource extends JsonResource
         return [
             'id' => $this->id,
             'user' => new AuthResource($this->whenLoaded('user')),
-            'group' => new GroupTransactionResource($this->whenLoaded('group')),
+            'group' => new GroupResource($this->whenLoaded('group')),
             'body' => $this->body,
         ];
     }

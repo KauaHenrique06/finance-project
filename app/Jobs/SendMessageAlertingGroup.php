@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\GroupTransaction;
+use App\Models\Group;
 use App\Models\Notification;
 use App\Models\Transaction;
 use App\Models\User;
@@ -29,7 +29,7 @@ class SendMessageAlertingGroup implements ShouldQueue
     public function handle(): void
     {
 
-        $group = GroupTransaction::with(['participant', 'owner'])->findOrFail($this->transaction->group_id);
+        $group = Group::with(['participant', 'owner'])->findOrFail($this->transaction->group_id);
         $instance = WhatsappInstance::findOrFail($group->instance_id);
 
         if ($instance->status !== 'connected')
@@ -69,7 +69,7 @@ class SendMessageAlertingGroup implements ShouldQueue
         return;
     }
 
-    protected function formatMessage(string $template, GroupTransaction $group, User $participant, int $quantityInstallment): string
+    protected function formatMessage(string $template, Group $group, User $participant, int $quantityInstallment): string
     {
         return strtr($template, [
             '{name}' => $participant->name,

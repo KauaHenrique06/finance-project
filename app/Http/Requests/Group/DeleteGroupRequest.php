@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Transaction;
+namespace App\Http\Requests\Group;
 
-use App\Helper\PageRuleHelper;
-use App\Helper\PerPageRuleHelper;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class IndexGroupTransactionRequest extends FormRequest
+class DeleteGroupRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,24 +23,18 @@ class IndexGroupTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            ...PageRuleHelper::rules(),
-            ...PerPageRuleHelper::rules(),
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            ...PageRuleHelper::attributes(),
-            ...PerPageRuleHelper::attributes(),
+            'id' => [
+                'required',
+                'uuid',
+                'exists:groups,id'
+            ]
         ];
     }
 
     public function prepareForValidation()
     {
         $this->merge([
-            ...PageRuleHelper::prepareForValidation($this),
-            ...PerPageRuleHelper::prepareForValidation($this),
+            'id' => $this->route('id')
         ]);
     }
 }

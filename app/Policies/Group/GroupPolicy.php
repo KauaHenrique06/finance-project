@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Policies\Transaction;
+namespace App\Policies\Group;
 
-use App\Models\GroupTransaction;
+use App\Models\Group;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class GroupTransactionPolicy
+class GroupPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -19,9 +19,9 @@ class GroupTransactionPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, GroupTransaction $groupTransaction): Response
+    public function view(User $user, Group $group): Response
     {
-        return $this->isOwner($user, $groupTransaction) || $this->isParticipant($user, $groupTransaction)
+        return $this->isOwner($user, $group) || $this->isParticipant($user, $group)
             ? Response::allow()
             : Response::deny("You can't view this transaction group!");
     }
@@ -37,21 +37,11 @@ class GroupTransactionPolicy
     /**
      * Determine whether the user can update the model.
      *
-     * Provisório: o owner sempre pode; participante só com can_edit na pivot.
+     * Provisório: só o owner edita o grupo.
      */
-    public function update(User $user, GroupTransaction $groupTransaction): Response
+    public function update(User $user, Group $group): Response
     {
-        if ($this->isOwner($user, $groupTransaction))
-        {
-            return Response::allow();
-        }
-
-        $canEdit = $groupTransaction->participant()
-            ->where('participant_id', $user->id)
-            ->wherePivot('can_edit', true)
-            ->exists();
-
-        return $canEdit
+        return $this->isOwner($user, $group)
             ? Response::allow()
             : Response::deny("You can't update this transaction group!");
     }
@@ -59,9 +49,9 @@ class GroupTransactionPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, GroupTransaction $groupTransaction): Response
+    public function delete(User $user, Group $group): Response
     {
-        return $this->isOwner($user, $groupTransaction) || $this->isParticipant($user, $groupTransaction)
+        return $this->isOwner($user, $group) || $this->isParticipant($user, $group)
             ? Response::allow()
             : Response::deny("You can't delete this transaction group!");
     }
@@ -69,9 +59,9 @@ class GroupTransactionPolicy
     /**
      * Determine whether the user can assign participants to the group.
      */
-    public function assignParticipant(User $user, GroupTransaction $groupTransaction): Response
+    public function assignParticipant(User $user, Group $group): Response
     {
-        return $this->isOwner($user, $groupTransaction)
+        return $this->isOwner($user, $group)
             ? Response::allow()
             : Response::deny("You can't assign users to this transaction group!");
     }
@@ -79,9 +69,9 @@ class GroupTransactionPolicy
     /**
      * Determine whether the user can attach a WhatsApp instance to the group.
      */
-    public function assignInstance(User $user, GroupTransaction $groupTransaction): Response
+    public function assignInstance(User $user, Group $group): Response
     {
-        return $this->isOwner($user, $groupTransaction)
+        return $this->isOwner($user, $group)
             ? Response::allow()
             : Response::deny("You can't assign instance to this transaction group!");
     }
@@ -89,7 +79,7 @@ class GroupTransactionPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, GroupTransaction $groupTransaction): bool
+    public function restore(User $user, Group $group): bool
     {
         return false;
     }
@@ -97,19 +87,19 @@ class GroupTransactionPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, GroupTransaction $groupTransaction): bool
+    public function forceDelete(User $user, Group $group): bool
     {
         return false;
     }
 
-    private function isOwner(User $user, GroupTransaction $groupTransaction): bool
+    private function isOwner(User $user, Group $group): bool
     {
-        return $user->id === $groupTransaction->owner_id;
+        return $user->id === $group->owner_id;
     }
 
-    private function isParticipant(User $user, GroupTransaction $groupTransaction): bool
+    private function isParticipant(User $user, Group $group): bool
     {
-        return $groupTransaction->participant()
+        return $group->participant()
             ->where('participant_id', $user->id)
             ->exists();
     }

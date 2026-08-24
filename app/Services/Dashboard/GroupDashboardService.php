@@ -6,7 +6,7 @@ use App\Enum\TransactionStatusEnum;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 
-class GroupTransactionDashboardService
+class GroupDashboardService
 {
     public function dashboard(array $data)
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Transaction;
+namespace App\Http\Requests\Group;
 
 use App\Helper\PageRuleHelper;
 use App\Helper\PerPageRuleHelper;
@@ -30,7 +30,7 @@ class IndexTransactionByGroupIdRequest extends FormRequest
             'id' => [
                 'required',
                 'uuid',
-                'exists:group_transaction,id'
+                'exists:groups,id'
             ]
         ];
     }
