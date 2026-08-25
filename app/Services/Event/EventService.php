@@ -84,4 +84,24 @@ class EventService
             return $event->load(['owner', 'instance', 'group']);
         });
     }
+
+    public function assignInstanceToEvent(array $data): void
+    {
+        $event = Event::findOrFail($data['id']);
+        $instance = WhatsappInstance::select('id', 'user_id', 'status')->findOrFail($data['instance_id']);
+
+        if ($instance->user_id !== $event->owner_id) 
+        {
+            throw new ApiException("This instance doesn't belong to any member of the group!");
+        }
+
+        if ($instance->status !== 'connected')
+        {
+            throw new ApiException("This instance is not connected!");
+        }
+
+        $event->update([
+            'instance_id' => $instance->id
+        ]);
+    }
 }

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Group;
+namespace App\Http\Requests\Event;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class AssignInstanceToGroupRequest extends FormRequest
+class AssignInstanceToEventRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,7 +26,7 @@ class AssignInstanceToGroupRequest extends FormRequest
             'id' => [
                 'required',
                 'uuid',
-                'exists:groups,id'
+                'exists:events,id'
             ],
             'instance_id' => [
                 'required',

@@ -11,7 +11,6 @@ Route::middleware('auth.api')->group(function() {
     Route::patch('/{id}', [GroupController::class, 'update'])->middleware('can:group.update');
     Route::delete('/{id}', [GroupController::class, 'destroy'])->middleware('can:group.delete');
     Route::post('/{id}/participant', [GroupController::class, 'assignParticipant'])->middleware('can:group.assignParticipant');
-    Route::patch('/{id}/instance', [GroupController::class, 'assignInstanceToGroup'])->middleware('can:group.assignInstance');
     
     // Group Messages
     Route::post('/{id}/message', [MessageController::class, 'store'])->middleware('can:group.sendMessage');

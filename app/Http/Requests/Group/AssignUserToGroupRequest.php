@@ -32,7 +32,7 @@ class AssignUserToGroupRequest extends FormRequest
                 'required',
                 'array'
             ],
-            'user.*.id' => [
+            'user.*' => [
                 'required',
                 'uuid',
                 'exists:users,id'

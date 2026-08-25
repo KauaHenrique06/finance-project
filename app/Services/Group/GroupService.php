@@ -37,19 +37,14 @@ class GroupService
         $authUserId = Auth::id();
 
         return DB::transaction(function () use ($data, $authUserId) {
-
-            $quantityInstallment = $data['has_installment']
-                ? $data['quantity_installment']
-                : 1;
-
+            
             $event = Event::find($data['event_id']);
+
             if (!$event)
             {
                 throw new ApiException('This event is invalid!');
             }
-
-            $nextDueDate = Carbon::parse($data['due_date']);
-
+                    
             $group = Group::create([
                 'title' => $data['title'],
                 'description' => $data['description'],
@@ -57,25 +52,7 @@ class GroupService
                 'total_amount' => $data['total_amount'],
             ]);
 
-            $amountData = $this->calcTransactionAmount($data['total_amount'], $quantityInstallment);
-
-            for ($installmentNumber = 1; $installmentNumber <= $quantityInstallment; $installmentNumber++)
-            {
-                $amountInCents = $installmentNumber === 1
-                    ? $amountData['installmentInCents'] + $amountData['remainderInCents']
-                    : $amountData['installmentInCents'];
-
-                Transaction::create([
-                    'has_installment' => $data['has_installment'],
-                    'quantity_installment' => $quantityInstallment,
-                    'due_date' => $nextDueDate,
-                    'installment_number' => $installmentNumber,
-                    'amount' => $amountInCents / 100,
-                    'group_id' => $group->id,
-                ]);
-
-                $nextDueDate->addMonth();
-            }
+            $this->storeTransaction($data, $group);
 
             return $group->load(['owner', 'participant', 'transaction']);
         });
@@ -88,6 +65,7 @@ class GroupService
 
         return Transaction::where('group_id', $data['id'])
             ->with(['group.owner', 'group.participant', 'payer'])
+            ->orderBy('installment_number')
             ->paginate($data['perPage'], ['*'], 'page', $data['page']);
     }
 
@@ -119,15 +97,24 @@ class GroupService
         $totalAmount = $data['total_amount'] ?? $group->total_amount;
         $nextDueDate = Carbon::parse($data['due_date'] ?? $current->due_date);
 
-        if ($quantityInstallment !== $current->quantity_installment
-            && $group->transaction()->where('is_paid', true)->exists())
+        $planChanged = $hasInstallment !== (bool) $current->has_installment
+            || $quantityInstallment !== (int) $current->quantity_installment
+            || (int) round($totalAmount * 100) !== (int) round($group->total_amount * 100)
+            || !$nextDueDate->isSameDay($current->due_date);
+
+        if ($planChanged && $group->transaction()->where('is_paid', true)->exists())
         {
-            throw new ApiException("This group already has paid instalments, you can't change the instalment count!", 409);
+            throw new ApiException("This group already has paid instalments, you can't change the instalment plan!", 409);
         }
 
-        return DB::transaction(function () use ($data, $group, $quantityInstallment, $hasInstallment, $totalAmount, $nextDueDate) {
+        return DB::transaction(function () use ($data, $group, $quantityInstallment, $hasInstallment, $totalAmount, $nextDueDate, $planChanged) {
 
             $group->update($data);
+
+            if (!$planChanged)
+            {
+                return $group->load(['owner', 'participant', 'transaction']);
+            }
 
             $amountData = $this->calcTransactionAmount($totalAmount, $quantityInstallment);
 
@@ -169,7 +156,6 @@ class GroupService
         Gate::authorize('assignParticipant', $group);
 
         $participants = collect($data['user'])
-            ->pluck('id')
             ->toArray();
 
         DB::transaction(function () use ($group, $participants) {
@@ -177,36 +163,38 @@ class GroupService
         });
     }
 
-    public function assignInstanceToGroup(array $data): void
+    private function storeTransaction(array $data, Group $group)
     {
-        $group = Group::findOrFail($data['id']);
-        $instance = WhatsappInstance::select('id', 'user_id', 'status')->findOrFail($data['instance_id']);
-        Gate::authorize('assignInstance', $group);
+        $nextDueDate = Carbon::parse($data['due_date']);
+        $quantityInstallment = $data['has_installment']
+            ? $data['quantity_installment']
+            : 1;
 
-        $usersIdPresentInGroup = GroupUser::select('participant_id')
-            ->where('group_id', $group->id)
-            ->pluck('participant_id')
-            ->flatten()
-            ->toArray();
+        return DB::transaction(function () use ($nextDueDate, $quantityInstallment, $data, $group) {
 
-        $usersIdPresentInGroup = array_merge($usersIdPresentInGroup, [$group->owner_id]);
-
-        if (!in_array($instance->user_id, $usersIdPresentInGroup)) 
-        {
-            throw new ApiException("This instance doesn't belong to any member of the group!");
-        }
-
-        if ($instance->status !== 'connected')
-        {
-            throw new ApiException("This instance is not connected!");
-        }
-
-        $group->update([
-            'instance_id' => $instance->id
-        ]);
+            $amountData = $this->calcTransactionAmount($data['total_amount'], $quantityInstallment);
+    
+            for ($installmentNumber = 1; $installmentNumber <= $quantityInstallment; $installmentNumber++)
+            {
+                $amountInCents = $installmentNumber === 1
+                    ? $amountData['installmentInCents'] + $amountData['remainderInCents']
+                    : $amountData['installmentInCents'];
+    
+                Transaction::create([
+                    'has_installment' => $data['has_installment'],
+                    'quantity_installment' => $quantityInstallment,
+                    'due_date' => $nextDueDate,
+                    'installment_number' => $installmentNumber,
+                    'amount' => $amountInCents / 100,
+                    'group_id' => $group->id,
+                ]);
+    
+                $nextDueDate->addMonth();
+            }
+        });
     }
 
-    protected function calcTransactionAmount(float $totalAmount, int $quantityInstallment): array
+    private function calcTransactionAmount(float $totalAmount, int $quantityInstallment): array
     {
         $totalInCents = (int) round($totalAmount * 100);
         $installmentInCents = intdiv($totalInCents, $quantityInstallment);

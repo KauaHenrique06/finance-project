@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Transaction;
+namespace App\Http\Requests\Group;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreTransactionRequest extends FormRequest
+class StoreGroupRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,6 +23,11 @@ class StoreTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'event_id' => [
+                'required',
+                'uuid',
+                'exists:events,id'
+            ],
             'title' => [
                 'required',
                 'string'
@@ -50,18 +55,6 @@ class StoreTransactionRequest extends FormRequest
                 'required',
                 'date'
             ]
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'title' => 'Título',
-            'description' => 'Descrição',
-            'has_installment' => 'Tem parcela',
-            'quantity_installment' => 'Quantidade de parcelas',
-            'total_amount' => 'Valor total',
-            'due_date' => 'Data do vencimento',
         ];
     }
 }

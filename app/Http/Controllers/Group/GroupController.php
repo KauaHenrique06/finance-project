@@ -8,6 +8,7 @@ use App\Http\Requests\Group\AssignUserToGroupRequest;
 use App\Http\Requests\Group\DeleteGroupRequest;
 use App\Http\Requests\Group\IndexGroupRequest;
 use App\Http\Requests\Group\IndexTransactionByGroupIdRequest;
+use App\Http\Requests\Group\StoreGroupRequest;
 use App\Http\Requests\Group\UpdateGroupRequest;
 use App\Http\Requests\Transaction\StoreTransactionRequest;
 use App\Http\Resources\Group\GroupCollection;
@@ -45,7 +46,7 @@ class GroupController extends Controller
      * Splits the total amount across the instalments and returns the group
      * with the transactions that were generated.
      */
-    public function store(StoreTransactionRequest $request): JsonResponse
+    public function store(StoreGroupRequest $request): JsonResponse
     {
         $data = $this->groupService->store($request->validated());
         return ApiResponse::success(
@@ -110,21 +111,6 @@ class GroupController extends Controller
         return ApiResponse::success(
             null,
             'User was assigned to group with success!',
-            200
-        );
-    }
-
-    /**
-     * Attach a WhatsApp instance to the group
-     *
-     * Defines which instance sends the reminders for this group.
-     */
-    public function assignInstanceToGroup(AssignInstanceToGroupRequest $request): JsonResponse
-    {
-        $this->groupService->assignInstanceToGroup($request->validated());
-        return ApiResponse::success(
-            null,
-            'Instance was assigned to group with success!',
             200
         );
     }

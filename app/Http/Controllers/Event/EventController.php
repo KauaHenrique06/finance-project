@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Event;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Event\AssignInstanceToEventRequest;
 use App\Http\Requests\Event\DeleteEventRequest;
 use App\Http\Requests\Event\IndexEventRequest;
 use App\Http\Requests\Event\ShowEventRequest;
@@ -12,6 +13,7 @@ use App\Http\Resources\Event\EventCollection;
 use App\Http\Resources\Event\EventResource;
 use App\Services\Event\EventService;
 use App\Support\ApiResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
@@ -65,6 +67,21 @@ class EventController extends Controller
         return ApiResponse::success(
             new EventResource($data),
             'Event was updated with success!',
+            200
+        );
+    }
+
+     /**
+     * Attach a WhatsApp instance to the event
+     *
+     * Defines which instance sends the reminders for this event.
+     */
+    public function assignInstanceToEvent(AssignInstanceToEventRequest $request): JsonResponse
+    {
+        $this->eventService->assignInstanceToEvent($request->validated());
+        return ApiResponse::success(
+            null,
+            'Instance was assigned to event with success!',
             200
         );
     }

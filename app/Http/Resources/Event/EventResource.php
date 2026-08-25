@@ -22,7 +22,12 @@ class EventResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'owner' => new AuthResource($this->whenLoaded('owner')),
-            'instance' => new WhatsappInstanceResource($this->whenLoaded('instance')),
+            'instance' => $this->whenLoaded('instance', fn () => [
+                'id' => $this->instance->id,
+                'name' => $this->instance->name,
+                'number' => $this->instance->number,
+                'status' => $this->instance->status,
+            ]),
             'group' => GroupResource::collection($this->whenLoaded('group')),
         ];
     }
