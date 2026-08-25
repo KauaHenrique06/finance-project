@@ -9,20 +9,21 @@ use Spatie\Permission\PermissionRegistrar;
 class PermissionSeeder extends Seeder
 {
     public const PERMISSIONS = [
-        'transaction.view' => 'Visualizar transações',
-        'transaction.create' => 'Criar transações',
-        'transaction.update' => 'Editar transações',
-        'transaction.delete' => 'Excluir transações',
-        'transaction.pay' => 'Marcar transação como paga',
+        'event.view' => 'Visualizar eventos',
+        'event.create' => 'Criar eventos',
+        'event.update' => 'Editar eventos',
+        'event.delete' => 'Excluir eventos',
+        'event.assignInstance' => 'Vincular instância do WhatsApp ao evento',
 
         'group.view' => 'Visualizar grupos de transação',
         'group.create' => 'Criar grupos de transação',
         'group.update' => 'Editar grupos de transação',
         'group.delete' => 'Excluir grupos de transação',
         'group.assignParticipant' => 'Adicionar participantes ao grupo',
-        'group.assignInstance' => 'Vincular instância do WhatsApp ao grupo',
         'group.viewMessage' => 'Visualizar mensagens do grupo',
         'group.sendMessage' => 'Enviar mensagens no grupo',
+
+        'transaction.pay' => 'Marcar transação como paga',
 
         'whatsapp.view' => 'Visualizar instâncias do WhatsApp',
         'whatsapp.create' => 'Criar instâncias do WhatsApp',
@@ -34,25 +35,28 @@ class PermissionSeeder extends Seeder
         'user.view' => 'Visualizar usuários',
         'user.update' => 'Editar o próprio perfil',
 
+        'dashboard.view' => 'Visualizar dashboard',
+
         'role.view' => 'Visualizar cargos',
         'permission.view' => 'Visualizar permissões',
     ];
 
     public const CLIENT_PERMISSIONS = [
-        'transaction.view',
-        'transaction.create',
-        'transaction.update',
-        'transaction.delete',
-        'transaction.pay',
+        'event.view',
+        'event.create',
+        'event.update',
+        'event.delete',
+        'event.assignInstance',
 
         'group.view',
         'group.create',
         'group.update',
         'group.delete',
         'group.assignParticipant',
-        'group.assignInstance',
         'group.viewMessage',
         'group.sendMessage',
+
+        'transaction.pay',
 
         'whatsapp.view',
         'whatsapp.create',
@@ -60,6 +64,8 @@ class PermissionSeeder extends Seeder
 
         'notification.view',
         'notification.update',
+
+        'dashboard.view',
 
         'user.update',
     ];
