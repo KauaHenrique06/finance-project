@@ -35,15 +35,6 @@ class IndexTransactionByGroupIdRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array
-    {
-        return [
-            ...PageRuleHelper::attributes(),
-            ...PerPageRuleHelper::attributes(),
-            'id' => 'ID do grupo'
-        ];
-    }
-
     public function prepareForValidation()
     {
         $this->merge([

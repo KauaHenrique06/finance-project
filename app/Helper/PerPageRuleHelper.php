@@ -15,13 +15,6 @@ class PerPageRuleHelper
         ];
     }
 
-    public static function attributes(): array
-    {
-        return [
-            'perPage' => 'Por página',
-        ];
-    }
-
     public static function prepareForValidation($query)
     {
         return [

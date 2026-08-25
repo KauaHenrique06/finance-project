@@ -30,14 +30,6 @@ class IndexNotificarionRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array
-    {
-        return [
-            ...PageRuleHelper::attributes(),
-            ...PerPageRuleHelper::attributes(),
-        ];
-    }
-
     public function prepareForValidation()
     {
         $this->merge([

@@ -32,15 +32,6 @@ class IndexEventRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array
-    {
-        return [
-            ...PageRuleHelper::attributes(),
-            ...PerPageRuleHelper::attributes(),
-            ...SearchRuleHelper::attributes(),
-        ];
-    }
-
     public function prepareForValidation()
     {
         $this->merge([

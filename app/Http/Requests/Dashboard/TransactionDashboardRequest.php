@@ -28,10 +28,4 @@ class TransactionDashboardRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array
-    {
-        return [
-            ...DateRangeRuleHelper::attributes()
-        ];
-    }
 }

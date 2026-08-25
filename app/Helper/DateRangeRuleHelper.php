@@ -21,11 +21,4 @@ class DateRangeRuleHelper
         ];
     }
 
-    public static function attributes(): array
-    {
-        return [
-            'start_date' => 'Data inicial',
-            'end_date' => 'Data final',
-        ];
-    }
 }

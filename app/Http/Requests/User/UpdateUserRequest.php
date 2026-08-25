@@ -50,16 +50,6 @@ class UpdateUserRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array 
-    {
-        return [
-            'name' => 'Nome',
-            'email' => 'Email',
-            'cpf' => 'Cpf',
-            'profile_pic' => 'Foto de perfil'
-        ];
-    }
-
     public function prepareForValidation(): array
     {
         return [

@@ -15,13 +15,6 @@ class SearchRuleHelper
         ];
     }
 
-    public static function attributes(): array
-    {
-        return [
-            'search' => 'Pesquisa',
-        ];
-    }
-
     public static function prepareForValidation($query, $defaultParam = '')
     {
         return [

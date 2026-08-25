@@ -39,10 +39,4 @@ class ResetPasswordRequest extends FormRequest
         ];
     }
 
-    public function attributes() {
-        return [
-            'password' => 'Senha',
-            'token' => 'Token'
-        ];
-    }
 }

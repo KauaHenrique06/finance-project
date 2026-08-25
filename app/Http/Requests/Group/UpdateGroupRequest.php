@@ -58,19 +58,6 @@ class UpdateGroupRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array
-    {
-        return [
-            'id' => 'ID do grupo',
-            'title' => 'Título',
-            'description' => 'Descrição',
-            'has_installment' => 'Tem parcela',
-            'quantity_installment' => 'Quantidade de parcelas',
-            'total_amount' => 'Valor total',
-            'due_date' => 'Data do vencimento',
-        ];
-    }
-
     public function prepareForValidation()
     {
         $this->merge([

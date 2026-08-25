@@ -15,13 +15,6 @@ class PageRuleHelper
         ];
     }
 
-    public static function attributes(): array
-    {
-        return [
-            'page' => 'Página',
-        ];
-    }
-
     public static function prepareForValidation($query)
     {
         return [

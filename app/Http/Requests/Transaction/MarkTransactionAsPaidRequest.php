@@ -40,15 +40,6 @@ class MarkTransactionAsPaidRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array
-    {
-        return [
-            'id' => 'ID da parcela',
-            'is_paid' => 'Foi pago',
-            'payer_id' => 'ID do pagador',
-        ];
-    }
-
     public function prepareForValidation()
     {
         $this->merge([

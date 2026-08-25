@@ -35,14 +35,6 @@ class ChangePasswordRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array  
-    {
-        return [
-            'old_password' => 'Senha antiga',
-            'new_password' => 'Senha nova',
-        ];
-    }
-
     public function prepareForValidation() 
     {
         $this->merge([

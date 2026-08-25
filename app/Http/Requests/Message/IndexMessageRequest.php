@@ -35,14 +35,6 @@ class IndexMessageRequest extends FormRequest
         ];
     }
 
-    public function attributes()
-    {
-         return [
-            ...PageRuleHelper::attributes(),
-            ...PerPageRuleHelper::attributes(),
-        ];
-    }
-
     public function prepareForValidation()
     {
         $this->merge([
