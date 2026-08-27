@@ -50,18 +50,12 @@ class EventService
 
             if (!empty($groupData) && is_array($groupData)) 
             {
-                if ($quantityGroups > 1)
-                {
-                    foreach ($groupData as $group) 
-                    {
-                        $this->groupService->store($group);
-                    }
-                } else {
-                    $this->groupService->store($groupData);
-                }
+                $quantityGroups > 1
+                    ? collect($groupData)->map(fn ($group) => $this->groupService->store($group))
+                    : $this->groupService->store($groupData);
             }
             
-            return $event->load(['group.transaction', 'instance', 'owner']);
+            return $event->load(['group.transaction', 'group.participant', 'instance', 'owner']);
         });
     }
 

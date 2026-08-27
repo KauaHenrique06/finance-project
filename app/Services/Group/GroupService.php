@@ -36,8 +36,12 @@ class GroupService
     {
         $authUserId = Auth::id();
 
-        return DB::transaction(function () use ($data, $authUserId) {
-            
+        $participantId = !empty($data['participant'])
+            ? $data['participant']
+            : null;
+
+        return DB::transaction(function () use ($data, $authUserId, $participantId) {
+
             $event = Event::find($data['event_id']);
 
             if (!$event)
@@ -52,6 +56,12 @@ class GroupService
                 'total_amount' => $data['total_amount'],
                 'event_id' => $data['event_id']
             ]);
+
+            if (!is_null($participantId)) 
+            {
+                $groupWithUser = array_merge($group->toArray(), ['user' => $participantId]);
+                $this->assignParticipant($groupWithUser);
+            }
 
             $this->storeTransaction($data, $group);
 
