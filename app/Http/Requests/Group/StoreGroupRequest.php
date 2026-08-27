@@ -33,7 +33,7 @@ class StoreGroupRequest extends FormRequest
                 'string'
             ],
             'description' => [
-                'required',
+                'sometimes',
                 'string'
             ],
             'has_installment' => [

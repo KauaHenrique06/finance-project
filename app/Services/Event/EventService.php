@@ -40,20 +40,12 @@ class EventService
                 'description' => $data['description'] ?? null,
                 'instance_id' => $data['instance_id'] ?? null,
             ]);
-                
-            $groupData = collect($groups)->map(
-                fn ($group) => array_merge(
-                    $group, ['event_id' => $event->id]
-                ))->toArray();
 
-            $quantityGroups = collect($groupData)->count();
-
-            if (!empty($groupData) && is_array($groupData)) 
-            {
-                $quantityGroups > 1
-                    ? collect($groupData)->map(fn ($group) => $this->groupService->store($group))
-                    : $this->groupService->store($groupData);
-            }
+            collect($groups)->each(
+                fn ($group) => $this->groupService->store(
+                    array_merge($group, ['event_id' => $event->id])
+                )
+            );
             
             return $event->load(['group.transaction', 'group.participant', 'instance', 'owner']);
         });
