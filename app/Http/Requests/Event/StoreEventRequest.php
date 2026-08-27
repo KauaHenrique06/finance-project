@@ -39,10 +39,15 @@ class StoreEventRequest extends FormRequest
                 'exists:whatsapp_instances,id'
             ],
             'group' => ['sometimes', 'array'],
-            'group.*' => ['array:title,description,total_amount'],
+            'group.*' => ['array:title,description,total_amount,has_installment,quantity_installment,due_date,participant'],
             'group.*.title' => ['required', 'string'],
             'group.*.description' => ['sometimes', 'string'],
             'group.*.total_amount' => ['required', 'numeric', 'min:0.01'],
+            'group.*.has_installment' => ['required', 'boolean'],
+            'group.*.quantity_installment' => ['required_if:group.*.has_installment,true', 'integer'],
+            'group.*.due_date' => ['required', 'date'],
+            'group.*.participant' => ['sometimes', 'array'],
+            'group.*.participant.*' => ['required', 'uuid', 'exists:users,id']
         ];
     }
 }

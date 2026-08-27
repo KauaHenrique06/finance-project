@@ -21,6 +21,7 @@ class GroupResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'total_amount' => $this->total_amount,
+            'event_id' => $this->event_id,
             'owner' => new AuthResource($this->whenLoaded('owner')),
             'participants' => AuthResource::collection($this->whenLoaded('participant')),
             'transactions' => TransactionResource::collection($this->whenLoaded('transaction')),

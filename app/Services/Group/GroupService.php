@@ -44,12 +44,13 @@ class GroupService
             {
                 throw new ApiException('This event is invalid!');
             }
-                    
+           
             $group = Group::create([
                 'title' => $data['title'],
-                'description' => $data['description'],
+                'description' => $data['description'] ?? null,
                 'owner_id' => $authUserId,
                 'total_amount' => $data['total_amount'],
+                'event_id' => $data['event_id']
             ]);
 
             $this->storeTransaction($data, $group);

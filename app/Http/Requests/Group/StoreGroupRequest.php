@@ -57,4 +57,11 @@ class StoreGroupRequest extends FormRequest
             ]
         ];
     }
+
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'event_id' => $this->route('id')
+        ]);
+    }
 }

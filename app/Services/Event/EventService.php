@@ -5,19 +5,23 @@ namespace App\Services\Event;
 use App\Exceptions\ApiException;
 use App\Models\Event;
 use App\Models\WhatsappInstance;
+use App\Services\Group\GroupService;
 use Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class EventService
 {
+
+    public function __construct(protected GroupService $groupService) {}
+
     public function store(array $data): Event
     {
+        $authUserId = Auth::id();
+
         $groups = !empty($data['group'])
             ? $data['group']
             : null;
-
-        $authUserId = Auth::id();
 
         if (!empty($data['instance_id']))
         {
@@ -36,18 +40,28 @@ class EventService
                 'description' => $data['description'] ?? null,
                 'instance_id' => $data['instance_id'] ?? null,
             ]);
-
+                
             $groupData = collect($groups)->map(
                 fn ($group) => array_merge(
-                    $group, ['owner_id' => $authUserId]
+                    $group, ['event_id' => $event->id]
                 ))->toArray();
-                
+
+            $quantityGroups = collect($groupData)->count();
+
             if (!empty($groupData) && is_array($groupData)) 
             {
-                $event->group()->createMany($groupData);
+                if ($quantityGroups > 1)
+                {
+                    foreach ($groupData as $group) 
+                    {
+                        $this->groupService->store($group);
+                    }
+                } else {
+                    $this->groupService->store($groupData);
+                }
             }
             
-            return $event->load(['group', 'instance', 'owner']);
+            return $event->load(['group.transaction', 'instance', 'owner']);
         });
     }
 
