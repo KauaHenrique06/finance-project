@@ -83,9 +83,9 @@ class User extends Authenticatable implements JWTSubject, HasMedia
     public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('thumb')
-            ->fit(Fit::Crop, 300, 300) 
-            ->format('webp')        
-            ->quality(80)              
+            ->fit(Fit::Crop, 300, 300)
+            ->format('webp')
+            ->quality(80)
             ->nonQueued();
     }
 
@@ -109,7 +109,7 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         return $this->hasMany(ForgotPassword::class);
     }
 
-    public function address(): HasOne 
+    public function address(): HasOne
     {
         return $this->hasOne(Address::class);
     }
@@ -144,6 +144,11 @@ class User extends Authenticatable implements JWTSubject, HasMedia
     public function ownerEvent(): HasMany
     {
         return $this->hasMany(Event::class, 'owner_id');
+    }
+
+    public function group()
+    {
+        return $this->hasMany(Group::class, );
     }
 
 }

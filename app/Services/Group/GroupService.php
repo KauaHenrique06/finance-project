@@ -18,13 +18,13 @@ use Illuminate\Support\Facades\Log;
 class GroupService
 {
 
-    public function index(array $data) 
+    public function index(array $data)
     {
         $authUserId = Auth::id();
 
         return Group::with([
-            'transaction', 
-            'owner', 
+            'transaction',
+            'owner',
             'participant'
         ])
         ->where('owner_id', $authUserId)
@@ -38,7 +38,7 @@ class GroupService
 
         $participantId = !empty($data['participant'])
             ? $data['participant']
-            : null;
+            : [];
 
         return DB::transaction(function () use ($data, $authUserId, $participantId) {
 
@@ -48,7 +48,7 @@ class GroupService
             {
                 throw new ApiException('This event is invalid!');
             }
-           
+
             $group = Group::create([
                 'title' => $data['title'],
                 'description' => $data['description'] ?? null,
@@ -57,13 +57,14 @@ class GroupService
                 'event_id' => $data['event_id']
             ]);
 
-            if (!is_null($participantId)) 
+            if ($data['is_split'])
             {
+                $this->storeSplitTransaction($data, $group, $participantId);
+            } else {
                 $groupWithUser = array_merge($group->toArray(), ['user' => $participantId]);
                 $this->assignParticipant($groupWithUser);
+                $this->storeTransaction($data, $group);
             }
-
-            $this->storeTransaction($data, $group);
 
             return $group->load(['owner', 'participant', 'transaction']);
         });
@@ -184,13 +185,13 @@ class GroupService
         return DB::transaction(function () use ($nextDueDate, $quantityInstallment, $data, $group) {
 
             $amountData = $this->calcTransactionAmount($data['total_amount'], $quantityInstallment);
-    
+
             for ($installmentNumber = 1; $installmentNumber <= $quantityInstallment; $installmentNumber++)
             {
                 $amountInCents = $installmentNumber === 1
                     ? $amountData['installmentInCents'] + $amountData['remainderInCents']
                     : $amountData['installmentInCents'];
-    
+
                 Transaction::create([
                     'has_installment' => $data['has_installment'],
                     'quantity_installment' => $quantityInstallment,
@@ -199,9 +200,32 @@ class GroupService
                     'amount' => $amountInCents / 100,
                     'group_id' => $group->id,
                 ]);
-    
+
                 $nextDueDate->addMonth();
             }
+        });
+    }
+
+    private function storeSplitTransaction(array $data, Group $group, array $participantId)
+    {
+        $participantId = array_merge($participantId, [$group->owner_id]);
+        $amountData = $this->calcTransactionAmount($data['total_amount'], collect($participantId)->count());
+
+        return DB::transaction(function () use ($data, $group, $participantId, $amountData) {
+            foreach ($participantId as $id)
+            {
+                $amountInCents = $group->owner_id === $id
+                    ? $amountData['installmentInCents'] + $amountData['remainderInCents']
+                    : $amountData['installmentInCents'];
+
+                Transaction::create([
+                    'due_date' => $data['due_date'],
+                    'amount' => $amountInCents / 100,
+                    'group_id' => $group->id,
+                    'user_id' => $id,
+                ]);
+            }
+            return;
         });
     }
 

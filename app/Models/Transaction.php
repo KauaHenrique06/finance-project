@@ -25,6 +25,7 @@ class Transaction extends Model
         'payment_date',
         'payer_id',
         'amount',
+        'user_id'
     ];
 
     protected function casts(): array
@@ -40,6 +41,7 @@ class Transaction extends Model
             'payment_date' => 'date',
             'payer_id' => 'string',
             'amount' => 'decimal:2',
+            'user_id' => 'string',
         ];
     }
 
@@ -57,5 +59,10 @@ class Transaction extends Model
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class, 'group_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

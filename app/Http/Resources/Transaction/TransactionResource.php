@@ -27,6 +27,7 @@ class TransactionResource extends JsonResource
             'status' => $this->status,
             'is_paid' => $this->is_paid,
             'payment_date' => $this->payment_date,
+            'split_user_id' => $this->split_user_id,
             'payer' => new AuthResource($this->whenLoaded('payer')),
         ];
     }

@@ -36,12 +36,16 @@ class StoreGroupRequest extends FormRequest
                 'sometimes',
                 'string'
             ],
-            'has_installment' => [
+            'is_split' => [
                 'required',
                 'boolean'
             ],
+            'has_installment' => [
+                'required_if:is_split,true',
+                'boolean'
+            ],
             'quantity_installment' => [
-                'required_if:has_installment,true',
+                'required_if_accepted:has_installment',
                 'nullable',
                 'integer',
                 'min:2'
@@ -60,8 +64,11 @@ class StoreGroupRequest extends FormRequest
 
     public function prepareForValidation()
     {
+        // assure this fields has required
         $this->merge([
-            'event_id' => $this->route('id')
+            'event_id' => $this->route('id'),
+            'is_split' => $this->boolean('boolean'),
+            'has_installmanet' => $this->boolean('boolean')
         ]);
     }
 }
