@@ -57,12 +57,13 @@ class GroupService
                 'event_id' => $data['event_id']
             ]);
 
+            $groupWithUser = array_merge($group->toArray(), ['user' => $participantId]);
+            $this->assignParticipant($groupWithUser);
+
             if ($data['is_split'])
             {
                 $this->storeSplitTransaction($data, $group, $participantId);
             } else {
-                $groupWithUser = array_merge($group->toArray(), ['user' => $participantId]);
-                $this->assignParticipant($groupWithUser);
                 $this->storeTransaction($data, $group);
             }
 

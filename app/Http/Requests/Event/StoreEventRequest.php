@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Event;
 
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEventRequest extends FormRequest
@@ -39,15 +40,44 @@ class StoreEventRequest extends FormRequest
                 'exists:whatsapp_instances,id'
             ],
             'group' => ['sometimes', 'array'],
-            'group.*' => ['array:title,description,total_amount,has_installment,quantity_installment,due_date,participant'],
+            'group.*' => ['array:title,description,total_amount,has_installment,quantity_installment,due_date,participant,is_split'],
             'group.*.title' => ['required', 'string'],
             'group.*.description' => ['sometimes', 'string'],
             'group.*.total_amount' => ['required', 'numeric', 'min:0.01'],
-            'group.*.has_installment' => ['required', 'boolean'],
-            'group.*.quantity_installment' => ['required_if:group.*.has_installment,true', 'integer'],
+            'group.*.is_split' => ['required', 'boolean'],
+            'group.*.has_installment' => ['required_if:group.*.is_split,false', 'boolean'],
+            'group.*.quantity_installment' => ['required_if_accepted:group.*.has_installment', 'nullable', 'integer', 'min:2'],
             'group.*.due_date' => ['required', 'date'],
             'group.*.participant' => ['sometimes', 'array'],
             'group.*.participant.*' => ['required', 'uuid', 'exists:users,id']
+        ];
+    }
+
+    public function after(): array
+    {
+        return [
+            function (Validator $validator)
+            {
+                $groups = $this->input('group') !== null
+                    ? $this->input('group')
+                    : [];
+                
+                foreach ($groups as $key => $group)
+                {
+                    if (!is_array($group))
+                    {   
+                        continue;
+                    }
+
+                    if ($group['is_split'] === true && $group['has_installment'] === true)
+                    {
+                        $validator->errors()->add(
+                            "group.$key", 
+                            "has_installment and is_split fields can't be true simultaneously"
+                        );
+                    }
+                }
+            }
         ];
     }
 }

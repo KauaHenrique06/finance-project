@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Services\Event;
 
@@ -23,6 +23,7 @@ class EventService
             ? $data['group']
             : null;
 
+            // dd($groups);
         if (!empty($data['instance_id']))
         {
             $instance = WhatsappInstance::where('status', 'connected')->find($data['instance_id']);
@@ -46,7 +47,7 @@ class EventService
                     array_merge($group, ['event_id' => $event->id])
                 )
             );
-            
+
             return $event->load(['group.transaction', 'group.participant', 'instance', 'owner']);
         });
     }
@@ -90,7 +91,7 @@ class EventService
         $event = Event::findOrFail($data['id']);
         $instance = WhatsappInstance::select('id', 'user_id', 'status')->findOrFail($data['instance_id']);
 
-        if ($instance->user_id !== $event->owner_id) 
+        if ($instance->user_id !== $event->owner_id)
         {
             throw new ApiException("This instance doesn't belong to any member of the group!");
         }
