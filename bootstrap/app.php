@@ -39,7 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ));
         $exceptions->renderable(fn(MethodNotAllowedHttpException $e) => ApiResponse::error(message: "Method not allowed!: " . $e->getMessage(), code: 405));
         $exceptions->renderable(fn(BadMethodCallException $e) => ApiResponse::error(message: "Method not found!: " . $e->getMessage(), code: 500));
-        $exceptions->renderable(fn(ValidationException $e) => ApiResponse::error(message: $e->getMessage(), code: 422));
+        $exceptions->renderable(fn(ValidationException $e) => ApiResponse::error(message: $e->errors(), code: 422));
         $exceptions->renderable(fn(AccessDeniedHttpException $e) => ApiResponse::error(message: "Access denied!" . $e->getMessage(), code: 403));
         $exceptions->renderable(fn(Throwable $e) => ApiResponse::error(message: "Server internal error!: " . $e->getMessage(), code: 500));
     })->create();
