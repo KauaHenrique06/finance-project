@@ -5,7 +5,6 @@ namespace App\Services\Group;
 use App\Exceptions\ApiException;
 use App\Models\Event;
 use App\Models\Group;
-use App\Models\GroupUser;
 use App\Models\Transaction;
 use App\Models\WhatsappInstance;
 use Auth;
@@ -165,6 +164,20 @@ class GroupService
     public function assignParticipant(array $data): void
     {
         $group = Group::findOrFail($data['id']);
+        $isSplit = $group->whereNotNull('user_id')
+            ? true
+            : false;
+
+        if ($isSplit && $group->where('is_paid', true)->exists())
+        {
+            throw new ApiException("You can't assign a participant in a split transaction already paid!");
+        }
+
+        // Validation for recalculate amount between participants
+        if ($isSplit)
+        {
+            $this->storeSplitTransaction();
+        }
 
         Gate::authorize('assignParticipant', $group);
 

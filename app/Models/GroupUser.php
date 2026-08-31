@@ -15,18 +15,14 @@ class GroupUser extends Pivot
 
     protected $fillable = [
         'participant_id',
-        'group_id',
-        'amount',
-        'is_paid'
+        'group_id'
     ];
 
     public function casts(): array
     {
         return [
             'participant_id' => 'string',
-            'group_id' => 'string',
-            'amount' => 'decimal:2',
-            'is_paid' => 'boolean'
+            'group_id' => 'string'
         ];
     }
 

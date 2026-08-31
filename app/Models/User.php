@@ -126,7 +126,6 @@ class User extends Authenticatable implements JWTSubject, HasMedia
     public function participantGroup(): BelongsToMany {
         return $this->belongsToMany(Group::class, 'group_user', 'participant_id', 'group_id')
             ->using(GroupUser::class)
-            ->withPivot('amount', 'is_paid')
             ->withTimestamps();
     }
 
