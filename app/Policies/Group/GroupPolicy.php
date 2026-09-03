@@ -2,6 +2,7 @@
 
 namespace App\Policies\Group;
 
+use App\Models\Event;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -29,9 +30,11 @@ class GroupPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, Event $event): Response
     {
-        return false;
+        return $user->id === $event->owner_id
+            ? Response::allow()
+            : Response::deny("Only the owner of event can create groups");
     }
 
     /**
@@ -51,7 +54,7 @@ class GroupPolicy
      */
     public function delete(User $user, Group $group): Response
     {
-        return $this->isOwner($user, $group) || $this->isParticipant($user, $group)
+        return $this->isOwner($user, $group)
             ? Response::allow()
             : Response::deny("You can't delete this transaction group!");
     }
@@ -64,32 +67,6 @@ class GroupPolicy
         return $this->isOwner($user, $group)
             ? Response::allow()
             : Response::deny("You can't assign users to this transaction group!");
-    }
-
-    /**
-     * Determine whether the user can attach a WhatsApp instance to the group.
-     */
-    public function assignInstance(User $user, Group $group): Response
-    {
-        return $this->isOwner($user, $group)
-            ? Response::allow()
-            : Response::deny("You can't assign instance to this transaction group!");
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Group $group): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Group $group): bool
-    {
-        return false;
     }
 
     private function isOwner(User $user, Group $group): bool

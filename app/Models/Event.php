@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Policies\Event\EventPolicy;
 use App\Traits\HasUuidV7;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[UsePolicy(EventPolicy::class)]
 class Event extends Model
 {
     use HasUuidV7, SoftDeletes;
@@ -27,6 +32,16 @@ class Event extends Model
             'owner_id' => 'string',
             'instance_id' => 'string',
         ];
+    }
+
+    // Return the query builder for continue mount
+    #[Scope]
+    protected function visibleTo(Builder $query, string $authUserId): void
+    {
+        $query->where(function ($q) use ($authUserId) {
+            $q->where('owner_id', $authUserId)
+            ->orWhereHas('group.participant', fn ($subQ) => $subQ->whereKey($authUserId));
+        });
     }
 
     public function instance(): BelongsTo

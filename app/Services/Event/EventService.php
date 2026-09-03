@@ -9,6 +9,7 @@ use App\Services\Group\GroupService;
 use Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class EventService
 {
@@ -54,8 +55,8 @@ class EventService
 
     public function index(array $data): LengthAwarePaginator
     {
-        // Policy
         return Event::with(['group', 'instance', 'owner'])
+            ->visibleTo(Auth::id())
             ->when($data['search'], function ($query, $search) {
                 $query->whereAny(['title'], 'ILIKE', "%$search%");
             })
@@ -64,20 +65,24 @@ class EventService
 
     public function show(array $data): Event
     {
-        // Policy
-        return Event::with(['group', 'instance', 'owner'])->findOrFail($data['id']);
+        $event = Event::with(['group', 'instance', 'owner'])->findOrFail($data['id']);
+        Gate::authorize('view', $event);
+
+        return $event;
     }
 
     public function delete(array $data): void
     {
-        // Policy
-        Event::findOrFail($data['id'])->delete();
+        $event = Event::findOrFail($data['id']);
+        Gate::authorize('delete', $event);
+
+        $event->delete();
     }
 
     public function update(array $data): Event
     {
-        // Policy
         $event = Event::findOrFail($data['id']);
+        Gate::authorize('update', $event);
 
         return DB::transaction(function () use ($event, $data) {
             $event->update($data);
@@ -89,6 +94,8 @@ class EventService
     public function assignInstanceToEvent(array $data): void
     {
         $event = Event::findOrFail($data['id']);
+        Gate::authorize('assignInstance', $event);
+
         $instance = WhatsappInstance::select('id', 'user_id', 'status')->findOrFail($data['instance_id']);
 
         if ($instance->user_id !== $event->owner_id)

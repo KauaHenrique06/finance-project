@@ -42,6 +42,7 @@ class GroupService
         return DB::transaction(function () use ($data, $authUserId, $participantId) {
 
             $event = Event::find($data['event_id']);
+            Gate::authorize('create', [Group::class, $event]);
 
             if (!$event)
             {

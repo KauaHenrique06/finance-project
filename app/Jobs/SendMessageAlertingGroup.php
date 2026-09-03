@@ -54,8 +54,6 @@ class SendMessageAlertingGroup implements ShouldQueue
             ? config('message.almostExpiring.withInstallment')
             : config('message.almostExpiring.single');
 
-        Log::info($template);
-
         // Owner is not stored on the pivot table, so it has to be merged in
         $recipients = $group->participant
             ->merge([$group->owner])
@@ -65,7 +63,6 @@ class SendMessageAlertingGroup implements ShouldQueue
         foreach ($recipients as $participant)
         {
             $message = $this->formatMessage($template, $group, $participant, $quantityInstallment);
-            Log::info($message);
 
             $this->sendMessage($instance, $participant, $message);
         }
