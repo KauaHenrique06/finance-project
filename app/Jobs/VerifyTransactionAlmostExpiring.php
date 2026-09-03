@@ -6,6 +6,7 @@ use App\Models\Group;
 use App\Models\Transaction;
 use App\Models\WhatsappInstance;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Queue\Queueable;
 
 class VerifyTransactionAlmostExpiring implements ShouldQueue
@@ -26,11 +27,12 @@ class VerifyTransactionAlmostExpiring implements ShouldQueue
         $nextDate = now()->addDay()->toDateString();
 
         // Groups with expiring transactions
-        Transaction::with(['group', 'group.whatsappInstance'])
-            ->where('is_paid', false)
+        Transaction::where('is_paid', false)
             ->whereDate('due_date', $nextDate)
             ->whereHas('group', function ($query) {
-                $query->whereNotNull('instance_id');
+                $query->whereHas('event', function ($q) {
+                    $q->whereNotNull('instance_id');
+                });
             })->chunkById(10, function ($transactions) {
                 foreach ($transactions as $transaction) 
                 {

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Event;
 use App\Models\Group;
 use App\Models\Notification;
 use App\Models\Transaction;
@@ -28,9 +29,9 @@ class SendMessageAlertingGroup implements ShouldQueue
      */
     public function handle(): void
     {
-
         $group = Group::with(['participant', 'owner'])->findOrFail($this->transaction->group_id);
-        $instance = WhatsappInstance::findOrFail($group->instance_id);
+        $event = Event::findOrFail($group->event_id);
+        $instance = WhatsappInstance::findOrFail($event->instance_id);
 
         if ($instance->status !== 'connected')
         {
@@ -53,6 +54,8 @@ class SendMessageAlertingGroup implements ShouldQueue
             ? config('message.almostExpiring.withInstallment')
             : config('message.almostExpiring.single');
 
+        Log::info($template);
+
         // Owner is not stored on the pivot table, so it has to be merged in
         $recipients = $group->participant
             ->merge([$group->owner])
@@ -62,6 +65,7 @@ class SendMessageAlertingGroup implements ShouldQueue
         foreach ($recipients as $participant)
         {
             $message = $this->formatMessage($template, $group, $participant, $quantityInstallment);
+            Log::info($message);
 
             $this->sendMessage($instance, $participant, $message);
         }
@@ -73,8 +77,7 @@ class SendMessageAlertingGroup implements ShouldQueue
     {
         return strtr($template, [
             '{name}' => $participant->name,
-            '{group}' => $group->title,
-            '{title}' => $this->transaction->title,
+            '{title}' => $group->title,
             '{installment}' => $this->transaction->installment_number,
             '{total}' => $quantityInstallment,
             '{amount}' => number_format($this->transaction->amount, 2, ',', '.'),
