@@ -60,7 +60,7 @@ class TransactionService
 
             TransactionService::sendNotify($notifyData);
 
-            return $transaction->refresh();
+            return $transaction->refresh()->load('payer');
         });
     }
 

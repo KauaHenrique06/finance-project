@@ -122,7 +122,7 @@ class GroupService
                     : $this->storeTransaction($transactionData, $group);
             }
 
-            return $group->load(['owner', 'participant', 'transaction.user']);
+            return $group->load(['owner', 'participant', 'transaction']);
         });
     }
 
