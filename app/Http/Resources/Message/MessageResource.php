@@ -21,6 +21,7 @@ class MessageResource extends JsonResource
             'user' => new AuthResource($this->whenLoaded('user')),
             'group' => new GroupResource($this->whenLoaded('group')),
             'body' => $this->body,
+            'created_at' => $this->created_at,
         ];
     }
 }
