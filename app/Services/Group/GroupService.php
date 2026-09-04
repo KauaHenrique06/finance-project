@@ -6,13 +6,12 @@ use App\Exceptions\ApiException;
 use App\Models\Event;
 use App\Models\Group;
 use App\Models\Transaction;
-use App\Models\WhatsappInstance;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Log;
 
 class GroupService
 {
@@ -99,95 +98,93 @@ class GroupService
         $group = Group::findOrFail($data['id']);
         Gate::authorize('update', $group);
 
-        $current = $group->transaction()->orderBy('installment_number')->first();
-
-        $hasInstallment = $data['has_installment'] ?? $current->has_installment;
-
-        $quantityInstallment = $hasInstallment
-            ? ($data['quantity_installment'] ?? $current->quantity_installment)
-            : 1;
-
-        $totalAmount = $data['total_amount'] ?? $group->total_amount;
-        $nextDueDate = Carbon::parse($data['due_date'] ?? $current->due_date);
-
-        $planChanged = $hasInstallment !== (bool) $current->has_installment
-            || $quantityInstallment !== (int) $current->quantity_installment
-            || (int) round($totalAmount * 100) !== (int) round($group->total_amount * 100)
-            || !$nextDueDate->isSameDay($current->due_date);
-
-        if ($planChanged && $group->transaction()->where('is_paid', true)->exists())
+        if ($group->transaction()->where('is_paid', true)->exists())
         {
-            throw new ApiException("This group already has paid instalments, you can't change the instalment plan!", 409);
+            throw new ApiException("This group already has paid transactions, you can't update it!", 409);
         }
 
-        return DB::transaction(function () use ($data, $group, $quantityInstallment, $hasInstallment, $totalAmount, $nextDueDate, $planChanged) {
+        return DB::transaction(function () use ($data, $group) {
 
-            $group->update($data);
+            $group->update(Arr::only($data, ['title', 'description', 'total_amount']));
 
-            if (!$planChanged)
+            if ($this->shouldRebuildTransaction($data))
             {
-                return $group->load(['owner', 'participant', 'transaction']);
+                $transactionData = $this->mergeTransactionData($data, $group);
+
+                $group->transaction()->forceDelete();
+
+                $data['is_split']
+                    ? $this->storeSplitTransaction(
+                        $transactionData,
+                        $group,
+                        $group->participant()->pluck('participant_id')->all()
+                    )
+                    : $this->storeTransaction($transactionData, $group);
             }
 
-            $amountData = $this->calcTransactionAmount($totalAmount, $quantityInstallment);
-
-            for ($installmentNumber = 1; $installmentNumber <= $quantityInstallment; $installmentNumber++)
-            {
-                $amountInCents = $installmentNumber === 1
-                    ? $amountData['installmentInCents'] + $amountData['remainderInCents']
-                    : $amountData['installmentInCents'];
-
-                Transaction::updateOrCreate(
-                    [
-                        'group_id' => $group->id,
-                        'installment_number' => $installmentNumber,
-                    ],
-                    [
-                        'has_installment' => $hasInstallment,
-                        'quantity_installment' => $quantityInstallment,
-                        'due_date' => $nextDueDate->copy(),
-                        'amount' => $amountInCents / 100,
-                    ]
-                );
-
-                $nextDueDate->addMonth();
-            }
-
-            $group->transaction()
-                ->where('installment_number', '>', $quantityInstallment)
-                ->delete();
-
-            return $group->load(['owner', 'participant', 'transaction']);
+            return $group->load(['owner', 'participant', 'transaction.user']);
         });
     }
-
 
     public function assignParticipant(array $data): void
     {
         $group = Group::findOrFail($data['id']);
-        $isSplit = $group->whereNotNull('user_id')
-            ? true
-            : false;
-
-        if ($isSplit && $group->where('is_paid', true)->exists())
-        {
-            throw new ApiException("You can't assign a participant in a split transaction already paid!");
-        }
-
-        // Validation for recalculate amount between participants
-        if ($isSplit)
-        {
-            $this->storeSplitTransaction();
-        }
-
         Gate::authorize('assignParticipant', $group);
+
+        $isSplit = $group->transaction()->whereNotNull('user_id')->exists();
+
+        if ($isSplit && $group->transaction()->where('is_paid', true)->exists())
+        {
+            throw new ApiException("You can't assign a participant in a split transaction already paid!", 409);
+        }
 
         $participants = collect($data['user'])
             ->toArray();
 
-        DB::transaction(function () use ($group, $participants) {
+        DB::transaction(function () use ($group, $participants, $isSplit) {
             $group->participant()->syncWithoutDetaching($participants);
+
+            if (!$isSplit)
+            {
+                return;
+            }
+
+            // The divisor changed, so every share has to be calculated again
+            $transactionData = $this->mergeTransactionData([], $group);
+            $group->transaction()->delete();
+
+            $this->storeSplitTransaction(
+                $transactionData,
+                $group,
+                $group->participant()->pluck('participant_id')->all()
+            );
         });
+    }
+
+    private function shouldRebuildTransaction(array $data): bool
+    {
+        return (bool) array_intersect_key(
+            $data,
+            array_flip(['is_split', 'has_installment', 'quantity_installment', 'total_amount', 'due_date'])
+        );
+    }
+
+    private function mergeTransactionData(array $data, Group $group): array
+    {
+        $dueDate = $data['due_date']
+            ?? $group->transaction()->orderBy('installment_number')->value('due_date');
+
+        if (!$dueDate)
+        {
+            throw new ApiException('This group has no due date, send due_date to rebuild its transactions!', 422);
+        }
+
+        return [
+            'total_amount' => (float) $group->total_amount,
+            'due_date' => $dueDate,
+            'has_installment' => $data['has_installment'] ?? false,
+            'quantity_installment' => $data['quantity_installment'] ?? null,
+        ];
     }
 
     private function storeTransaction(array $data, Group $group)
@@ -223,7 +220,7 @@ class GroupService
 
     private function storeSplitTransaction(array $data, Group $group, array $participantId)
     {
-        $participantId = array_merge($participantId, [$group->owner_id]);
+        $participantId = array_values(array_unique(array_merge($participantId, [$group->owner_id])));
         $amountData = $this->calcTransactionAmount($data['total_amount'], collect($participantId)->count());
 
         return DB::transaction(function () use ($data, $group, $participantId, $amountData) {
