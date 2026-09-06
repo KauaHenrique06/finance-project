@@ -46,7 +46,7 @@ class Campaign extends Model
         $total = $this->contributorCampaign()->sum('amount');
 
         return new Attribute(
-            get: fn () => $total
+            get: fn () => (float)$total
         );
     }
 

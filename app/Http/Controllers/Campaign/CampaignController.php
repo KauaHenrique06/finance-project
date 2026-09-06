@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Campaign;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Campaign\ContributeCampaignRequest;
 use App\Http\Requests\Campaign\DeleteCampaignRequest;
 use App\Http\Requests\Campaign\IndexCampaignRequest;
 use App\Http\Requests\Campaign\ShowCampaignRequest;
 use App\Http\Requests\Campaign\StoreCampaignRequest;
 use App\Http\Requests\Campaign\UpdateCampaignRequest;
+use App\Http\Resources\Campaign\CampaignCollection;
+use App\Http\Resources\Campaign\CampaignResource;
 use App\Services\Campaign\CampaignService;
 use App\Support\ApiResponse;
 use Illuminate\Http\Request;
@@ -20,7 +23,7 @@ class CampaignController extends Controller
     {
         $data = $this->campaignService->index($request->validated());
         return ApiResponse::success(
-            $data,
+            new CampaignCollection($data),
             'Campaigns was indexed with success!',
             200
         );
@@ -30,7 +33,7 @@ class CampaignController extends Controller
     {
         $data = $this->campaignService->store($request->validated());
         return ApiResponse::success(
-            $data,
+            new CampaignResource($data),
             'Campaign was created with success!',
             201
         );
@@ -40,7 +43,7 @@ class CampaignController extends Controller
     {
         $data = $this->campaignService->show($request->validated());
         return ApiResponse::success(
-            $data,
+            new CampaignResource($data),
             'Campaign was indexed with success!',
             200
         );
@@ -50,7 +53,7 @@ class CampaignController extends Controller
     {
         $data = $this->campaignService->update($request->validated());
         return ApiResponse::success(
-            $data,
+            new CampaignResource($data),
             'Campaign was updated with success!',
             200
         );
@@ -62,6 +65,16 @@ class CampaignController extends Controller
         return ApiResponse::success(
             null,
             'Campaign was deleted with success!',
+            200
+        );
+    }
+
+    public function contribute(ContributeCampaignRequest $request)
+    {
+        $this->campaignService->contribute($request->validated());
+        return ApiResponse::success(
+            null,
+            'Contribute send with success!',
             200
         );
     }

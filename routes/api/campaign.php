@@ -9,4 +9,5 @@ Route::middleware('auth.api')->group(function () {
     Route::get('/{id}', [CampaignController::class, 'show']);
     Route::patch('/{id}', [CampaignController::class, 'update']);
     Route::delete('/{id}', [CampaignController::class, 'destroy']);
+    Route::post('/{id}/contribute', [CampaignController::class, 'contribute']);
 });

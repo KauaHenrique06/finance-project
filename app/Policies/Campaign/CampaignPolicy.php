@@ -9,42 +9,27 @@ use Illuminate\Auth\Access\Response;
 class CampaignPolicy
 {
     /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Campaign $campaign): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return false;
-    }
-
-    /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Campaign $campaign): bool
+    public function update(User $user, Campaign $campaign): Response
     {
-        return false;
+        return $this->isOwner($user, $campaign)
+            ? Response::allow()
+            : Response::deny("Only owner can update this campaign!");
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Campaign $campaign): bool
+    public function delete(User $user, Campaign $campaign): Response
     {
-        return false;
+        return $this->isOwner($user, $campaign)
+            ? Response::allow()
+            : Response::deny("Only owner can delete this campaign!");
+    }
+
+    private function isOwner(User $user, Campaign $campaign): bool
+    {
+        return $user->id === $campaign->owner_id;
     }
 }
