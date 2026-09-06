@@ -12,7 +12,7 @@ class CampaignContribution extends Model
 
     protected $fillable = [
         'campaign_id',
-        'contributor_id_id',
+        'contributor_id',
         'status',
         'amount',
         'paid_at'
@@ -22,7 +22,7 @@ class CampaignContribution extends Model
     {
         return [
             'campaign_id' => 'string',
-            'contributor_id_id' => 'string',
+            'contributor_id' => 'string',
             'status' => 'string',
             'amount' => 'decimal:2',
             'paid_at' => 'date'
