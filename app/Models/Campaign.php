@@ -6,8 +6,10 @@ use App\Enum\CampaignStatusEnum;
 use App\Policies\Campaign\CampaignPolicy;
 use App\Traits\HasUuidV7;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[UsePolicy(CampaignPolicy::class)]
@@ -19,11 +21,12 @@ class Campaign extends Model
         'title',
         'description',
         'status',
-        'total_collected',
         'limit',
         'owner_id',
         'due_date'
     ];
+
+    protected $appends = ['total_collected'];
 
     protected function casts(): array 
     {
@@ -31,15 +34,29 @@ class Campaign extends Model
             'title' => 'string',
             'description' => 'string',
             'status' => CampaignStatusEnum::class,
-            'total_collected' => 'decimal:2',
             'limit' => 'decimal:2',
             'owner_id' => 'string',
             'due_date' => 'date'
         ];
     } 
 
+    // Return total collected by group
+    protected function totalCollected(): Attribute
+    {
+        $total = $this->contributorCampaign()->sum('amount');
+
+        return new Attribute(
+            get: fn () => $total
+        );
+    }
+
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function contributorCampaign(): HasMany
+    {
+        return $this->hasMany(CampaignContribution::class);
     }
 }
