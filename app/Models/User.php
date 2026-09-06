@@ -150,4 +150,9 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         return $this->hasMany(Group::class, );
     }
 
+    public function ownerCampaign(): HasMany
+    {
+        return $this->hasMany(Campaign::class, 'owner_id');
+    }
+
 }

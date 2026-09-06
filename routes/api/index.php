@@ -13,3 +13,4 @@ Route::prefix('whatsapp-instance')->group(base_path('routes/api/whatsapp_instanc
 Route::prefix('webhook')->group(base_path('routes/api/webhook.php'));
 Route::prefix('dashboard')->group(base_path('routes/api/dashboard.php'));
 Route::prefix('event')->group(base_path('routes/api/event.php'));
+Route::prefix('campaign')->group(base_path('routes/api/campaign.php'));
