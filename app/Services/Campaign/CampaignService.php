@@ -77,10 +77,10 @@ class CampaignService
     {
         if ($campaign->status->value !== CampaignStatusEnum::IN_PROGRESS->value) 
         {
-            throw new ApiException("This campaign isn't active!");
+            throw new ApiException("This campaign was {$campaign->status->value}");
         }
 
-        if ($campaign->limit !== null && $data['contribute_amount'] > $campaign->limit) 
+        if ($campaign->limit !== null && $data['contribute_amount'] + $campaign->total_collected > $campaign->limit) 
         {
             throw new ApiException('This amount is not permited!');
         }
