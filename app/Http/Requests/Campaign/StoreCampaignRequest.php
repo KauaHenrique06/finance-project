@@ -48,7 +48,8 @@ class StoreCampaignRequest extends FormRequest
             'due_date' => [
                 'nullable',
                 'sometimes',
-                'date'
+                'date',
+                'after:today',
             ]
         ];
     }
