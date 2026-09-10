@@ -67,8 +67,6 @@ class StoreUserRequest extends FormRequest
                 'required_with:address',
                 'integer'
             ],
-
-
         ];
     }
 }

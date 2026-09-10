@@ -159,4 +159,9 @@ class User extends Authenticatable implements JWTSubject, HasMedia
     {
         return $this->hasMany(CampaignContribution::class);
     }
+
+    public function subAccount(): HasOne
+    {
+        return $this->hasOne(AsaasSubAccount::class);
+    }
 }
