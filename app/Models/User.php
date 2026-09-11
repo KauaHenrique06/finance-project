@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Traits\HasUuidV7;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -35,7 +36,8 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         'password',
         'cpf',
         'phone',
-        'address_id'
+        'address_id',
+        'birth_date'
     ];
 
     protected $appends = ['profile_pic'];
@@ -109,9 +111,9 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         return $this->hasMany(ForgotPassword::class);
     }
 
-    public function address(): HasOne
+    public function address(): BelongsTo
     {
-        return $this->hasOne(Address::class);
+        return $this->belongsTo(Address::class);
     }
 
     public function ownerGroup(): HasMany {

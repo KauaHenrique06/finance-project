@@ -4,7 +4,8 @@ namespace App\Models;
 
 use App\Traits\HasUuidV7;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Address extends Model
 {
@@ -31,8 +32,8 @@ class Address extends Model
         ];
     }
 
-    public function user(): BelongsToMany 
+    public function user(): HasOne
     {
-        return $this->belongsToMany(User::class);
+        return $this->hasOne(User::class);
     }
 }

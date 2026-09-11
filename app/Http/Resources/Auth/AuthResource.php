@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Auth;
 
+use App\Http\Resources\Address\AddressResource;
 use App\Http\Resources\Permission\PermissionResource;
 use App\Http\Resources\Role\RoleResource;
 use Illuminate\Http\Request;
@@ -23,8 +24,8 @@ class AuthResource extends JsonResource
             'email' => $this->email,
             'cpf' => $this->cpf,
             'profile_pic' => $this->profile_pic,
+            'address' => new AddressResource($this->whenLoaded('address')),
             'roles' => RoleResource::collection($this->whenLoaded('roles')),
-            'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),
         ];
     }
 }

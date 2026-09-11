@@ -18,7 +18,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService {
 
-    public const DEFAULT_ROLE = 'client';
+    public const DEFAULT_ROLE = 'admin';
 
     public function __construct(protected AddressService $addressService) {}
 
@@ -35,9 +35,10 @@ class AuthService {
         return DB::transaction(function() use ($data, $usersToNotificate, $address) {
 
             if ($address && is_array($address)) {
-                $this->addressService->store($address);
+                $createAddress = $this->addressService->store($address);
             }
 
+            $data = array_merge($data, ['address_id' => $createAddress->id]);
             $user = User::create($data);
             $user->refresh();
 
@@ -67,7 +68,7 @@ class AuthService {
 
             SendWelcomeEmail::dispatch($user);
 
-            return $user->load(['roles', 'permissions']);
+            return $user->load(['address', 'roles', 'roles.permissions']);
         });
     }
 
