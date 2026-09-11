@@ -38,7 +38,6 @@ class AuthService {
                 $this->addressService->store($address);
             }
 
-            // $data = array_merge($data, ['address_id' => $createAddress->id]);
             $user = User::create($data);
             $user->refresh();
 

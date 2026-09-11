@@ -48,6 +48,15 @@ class StoreUserRequest extends FormRequest
                     ->symbols()
                     ->numbers()
             ],
+            'phone' => [
+                'required',
+                'string',
+                'max:13'
+            ],
+            'birth_date' => [
+                'required',
+                'date'
+            ],
             'profile_pic' => [
                 'nullable',
                 'sometimes',
