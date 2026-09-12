@@ -5,13 +5,17 @@ namespace App\Services\Campaign;
 use App\Enum\CampaignStatusEnum;
 use App\Exceptions\ApiException;
 use App\Models\Campaign;
+use App\Services\Asaas\PaymentService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Str;
 
 class CampaignService
 {
+    public function __construct(protected PaymentService $paymentService) {}
+
     public function index(array $data): LengthAwarePaginator
     {
         return Campaign::with('owner')->paginate($data['perPage'], ['*'], 'page', $data['page']);
@@ -19,13 +23,29 @@ class CampaignService
 
     public function store(array $data): Campaign
     {
-        $authUserId = Auth::id();
+        $authUser = Auth::user();
+        $subAccount = $authUser->subAccount()->first();
+        $campaignId = (string) Str::uuid7();
 
-        $data = array_merge($data, ['owner_id' => $authUserId]);
+        if (!$subAccount || $subAccount->status !== 'approved')
+        {
+            throw new ApiException(
+                "You must be have a valid sub account for create a campaing!"
+            );
+        }
 
-        return DB::transaction(function () use ($data) {
-            $campaign = Campaign::create($data);
-            $campaign->refresh();
+        $qrCode = $this->paymentService->generatePaymentQrCode($data, $subAccount, $campaignId);
+
+        $data = array_merge($data, [
+            'owner_id' => $authUser->id,
+            'asaas_qr_code_id' => $qrCode['id'],
+            'asaas_qr_code_payload' => $qrCode['payload']
+        ]);
+
+        return DB::transaction(function () use ($data, $campaignId) {
+            $campaign = new Campaign;
+            $campaign->id = $campaignId;
+            $campaign->fill($data)->save();
 
             return $campaign->load('owner');
         });
@@ -36,6 +56,8 @@ class CampaignService
         return Campaign::with('owner')->findOrFail($data['id']);
     }
 
+    // Adjust update for user cant change due date or update qr code too
+    // Verify when user alter status manually
     public function update(array $data): Campaign
     {
         $campaign = Campaign::findOrFail($data['id']);
@@ -55,6 +77,7 @@ class CampaignService
     {
         $campaign = Campaign::findOrFail($data['id']);
         Gate::authorize('delete', $campaign);
+        $this->paymentService->deletePaymentQrCode($campaign);
         $campaign->delete();
     }
 
