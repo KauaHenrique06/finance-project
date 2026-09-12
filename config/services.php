@@ -45,4 +45,10 @@ return [
         'url' => env('BRASIL_API_URL'),
     ],
 
+    'asaas' => [
+        'url' => env('ASAAS_URL_SANDBOX'),
+        'key' => env('ASAAS_API_KEY_SANDBOX'),
+        'wallet_id' => env('ASAAS_WALLET_ID_SANDBOX'),
+    ],
+
 ];

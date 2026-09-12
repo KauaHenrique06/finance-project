@@ -15,7 +15,6 @@ class StoreSubAccountRequest extends FormRequest
         return true;
     }
 
-    // add cnpj validate later
     public function rules(): array
     {
         return [
@@ -23,10 +22,6 @@ class StoreSubAccountRequest extends FormRequest
                 'required',
                 'numeric',
                 'min:0'
-            ],
-            'email' => [
-                'sometimes',
-                'email'
             ]
         ];
     }
