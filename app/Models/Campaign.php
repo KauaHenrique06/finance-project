@@ -23,7 +23,9 @@ class Campaign extends Model
         'status',
         'limit',
         'owner_id',
-        'due_date'
+        'due_date',
+        'asaas_qr_code_id',
+        'asaas_qr_code_payload',
     ];
 
     protected $appends = ['total_collected'];
@@ -36,7 +38,9 @@ class Campaign extends Model
             'status' => CampaignStatusEnum::class,
             'limit' => 'decimal:2',
             'owner_id' => 'string',
-            'due_date' => 'date'
+            'due_date' => 'date',
+            'asaas_qr_code_id' => 'string',
+            'asaas_qr_code_payload' => 'string',
         ];
     } 
 
