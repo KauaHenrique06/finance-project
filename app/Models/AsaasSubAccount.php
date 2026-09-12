@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AsaasSubAccount extends Model
 {
-    use HasUuidV7, SoftDeletes;
+    use HasUuidV7;
 
     protected $fillable = [
         'user_id',
