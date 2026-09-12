@@ -23,7 +23,6 @@ class GenerateAsaasPixKey implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::info($this->subAccount->asaas_access_token_api_key);
         try {
 
             $response = Http::timeout(60)

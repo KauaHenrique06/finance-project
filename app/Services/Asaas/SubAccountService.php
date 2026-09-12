@@ -41,7 +41,7 @@ class SubAccountService
 
         $account = $response->json();
 
-        DB::transaction(function () use ($authUser, $account, $payload) {
+        DB::transaction(function () use ($authUser, $account) {
 
             $subAccount = $authUser->subAccount()->create([
                 'asaas_account_id' => $account['id'],
@@ -49,7 +49,7 @@ class SubAccountService
                 'asaas_api_key' => $account['apiKey'],
                 'asaas_access_token_id' => $account['accessToken']['id'],
                 'asaas_access_token_api_key' => $account['accessToken']['apiKey'],
-                'login_email' => $account['loginEmail'] ?? $payload['email'],
+                'login_email' => $account['loginEmail'],
                 'person_type' => $account['personType'] ?? null,
                 'account_agency' => $account['accountNumber']['agency'] ?? null,
                 'account_number' => $account['accountNumber']['account'] ?? null,
