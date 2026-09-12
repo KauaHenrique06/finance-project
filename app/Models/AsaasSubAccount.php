@@ -24,6 +24,9 @@ class AsaasSubAccount extends Model
         'account_digit',
         'status',
         'commercial_info_expiration',
+        'asaas_pix_key',
+        'asaas_pix_key_id',
+        'asaas_access_token_api_key'
     ];
 
     protected $hidden = [
@@ -45,6 +48,9 @@ class AsaasSubAccount extends Model
             'account_digit' => 'string',
             'status' => 'string',
             'commercial_info_expiration' => 'date',
+            'asaas_pix_key' => 'string',
+            'asaas_pix_key_id' => 'string',
+            'asaas_access_token_api_key' => 'string'
         ];
     }
 
