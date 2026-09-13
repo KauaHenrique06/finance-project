@@ -25,7 +25,26 @@ class SubAccountService
             'address' => $authUser->address->street,
             'addressNumber' => $authUser->address->number,
             'province' => $authUser->address->neighborhood,
-            'postalCode' => $authUser->address->cep
+            'postalCode' => $authUser->address->cep,
+            'webhooks' => [
+                [
+                    'name' => 'General webhooks',
+                    'url' => 'https://gps-richards-drives-dec.trycloudflare.com/api/webhook/asaas',
+                    'email' => $authUser->email,
+                    'enabled' => true,
+                    'interrupted' => false,
+                    'apiVersion' => 3,
+                    'authToken' => config('services.asaas.webhook_token'),
+                    'sendType' => 'NON_SEQUENTIALLY',
+                    'events' => [
+                        'PAYMENT_RECEIVED',
+                        'ACCOUNT_STATUS_GENERAL_APPROVAL_AWAITING_APPROVAL',
+                        'ACCOUNT_STATUS_GENERAL_APPROVAL_APPROVED',
+                        'ACCOUNT_STATUS_GENERAL_APPROVAL_PENDING',
+                        'ACCOUNT_STATUS_GENERAL_APPROVAL_REJECTED',
+                    ]
+                ]
+            ]
         ];
 
         try {
@@ -36,7 +55,7 @@ class SubAccountService
                 ->throw();
 
         } catch (\Exception $e) {
-            throw new ApiException('Failed to sendo sub account to asaas: ' . $e->getMessage());
+            throw new ApiException('Failed to send sub account to asaas: ' . $e->getMessage());
         }
 
         $account = $response->json();
@@ -62,12 +81,12 @@ class SubAccountService
     }
 
     // Create the function for help send request for Asaas
-    private function request(string $method, array $payload, string $url) 
-    {
-        try { 
-            //
-        } catch (Exception $e) {
-            throw new ApiException('Falha ao conectar na API do Asaas: ' . $e->getMessage());
-        }
-    }
+    // private function request(string $method, array $payload, string $url) 
+    // {
+    //     try { 
+            
+    //     } catch (\Exception $e) {
+    //         throw new ApiException('Falha ao conectar na API do Asaas: ' . $e->getMessage());
+    //     }
+    // }
 }
