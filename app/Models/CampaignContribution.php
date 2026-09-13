@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enum\ContributionStatusEnum;
 use App\Traits\HasUuidV7;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ class CampaignContribution extends Model
 
     protected $fillable = [
         'campaign_id',
-        'contributor_id',
+        'asaas_payment_id',
         'status',
         'amount',
         'paid_at'
@@ -22,16 +23,10 @@ class CampaignContribution extends Model
     {
         return [
             'campaign_id' => 'string',
-            'contributor_id' => 'string',
-            'status' => 'string',
+            'status' => ContributionStatusEnum::class,
             'amount' => 'decimal:2',
-            'paid_at' => 'date'
+            'paid_at' => 'datetime'
         ];
-    }
-
-    public function contributor(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'contributor_id');
     }
 
     public function campaign(): BelongsTo

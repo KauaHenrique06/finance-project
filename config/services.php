@@ -49,6 +49,7 @@ return [
         'url' => env('ASAAS_URL_SANDBOX'),
         'key' => env('ASAAS_API_KEY_SANDBOX'),
         'wallet_id' => env('ASAAS_WALLET_ID_SANDBOX'),
+        'webhook_token' => env('ASAAS_WEBHOOK_TOKEN')
     ],
 
 ];
