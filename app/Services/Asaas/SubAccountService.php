@@ -4,6 +4,9 @@ namespace App\Services\Asaas;
 
 use App\Exceptions\ApiException;
 use App\Jobs\GenerateAsaasPixKey;
+use App\Models\AsaasSubAccount;
+use App\Models\Campaign;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -54,7 +57,7 @@ class SubAccountService
                 ->post(config('services.asaas.url') . '/accounts', $payload)
                 ->throw();
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new ApiException('Failed to send sub account to asaas: ' . $e->getMessage());
         }
 
@@ -78,6 +81,26 @@ class SubAccountService
 
             GenerateAsaasPixKey::dispatch($subAccount)->afterCommit();
         });
+    }
+
+    public function destroy(): void  
+    {
+        $authUserId = Auth::id();
+        $subAccount = AsaasSubAccount::where('user_id', $authUserId)->firstOrFail();
+        $campaigns = Campaign::where('owner_id', $subAccount->user_id)->get();
+
+        try {
+
+            Http::withHeader('access_token', config('services.asaas.key'))
+                ->withUrlParameters(['id' => $subAccount->asaas_account_id])
+                ->delete(config('services.asaas.url') . '/accounts/{id}')
+                ->throw();
+        } catch (Exception $e) {
+            throw new ApiException('Failed to delete sub account!' . $e->getMessage());
+        }
+
+        $subAccount->delete();
+        $campaigns->map(fn ($campaign) => $campaign->delete());
     }
 
     // Create the function for help send request for Asaas

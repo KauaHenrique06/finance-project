@@ -22,4 +22,14 @@ class SubAccountController extends Controller
             201
         );
     }
+
+    public function destroy(): JsonResponse
+    {
+        $this->subAccountService->destroy();
+        return ApiResponse::success(
+            null,
+            'Sub account was deleted with success!',
+            200
+        );
+    }
 }
