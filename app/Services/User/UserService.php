@@ -18,13 +18,13 @@ class UserService {
 
         $user = User::where('email', $data['email'])->firstOrFail();
 
-        ForgotPassword::create([
+        $forgotPassword = ForgotPassword::create([
             'user_id' => $user->id,
             'access_token' => Str::uuid7(),
             'expires_at' => now()->addHours(2)
         ]);
 
-        SendForgotPasswordMail::dispatch($user);
+        SendForgotPasswordMail::dispatch($user, $forgotPassword);
     }
 
     public function resetPassword(array $data) {

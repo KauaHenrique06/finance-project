@@ -20,7 +20,7 @@ class ForgotPassword extends Model
     protected function casts() {
         return [
             'user_id' => 'string',
-            'expires_at' => 'date',
+            'expires_at' => 'datetime',
             'access_token' => 'string',
             'used' => 'boolean'
         ];
