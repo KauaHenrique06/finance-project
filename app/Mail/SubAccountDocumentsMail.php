@@ -2,16 +2,15 @@
 
 namespace App\Mail;
 
-use App\Models\ForgotPassword;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ForgotPasswordMail extends Mailable
+class SubAccountDocumentsMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -20,7 +19,8 @@ class ForgotPasswordMail extends Mailable
      */
     public function __construct(
         public User $user,
-        public ForgotPassword $forgotPassword
+        public string $onboardingUrl,
+        public ?CarbonInterface $expiresAt = null
     ) {}
 
     /**
@@ -29,7 +29,7 @@ class ForgotPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Password recovery',
+            subject: 'Send your documents to activate your account',
         );
     }
 
@@ -39,18 +39,14 @@ class ForgotPasswordMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mails.forgot-password',
-            with: [
-                'token' => $this->forgotPassword->access_token,
-                'expiresAt' => $this->forgotPassword->expires_at,
-            ],
+            view: 'mails.sub-account-documents',
         );
     }
 
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, Attachment>
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array
     {

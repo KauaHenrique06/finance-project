@@ -2,26 +2,21 @@
 
 namespace App\Mail;
 
-use App\Models\ForgotPassword;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ForgotPasswordMail extends Mailable
+class SubAccountApprovedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(
-        public User $user,
-        public ForgotPassword $forgotPassword
-    ) {}
+    public function __construct(public User $user) {}
 
     /**
      * Get the message envelope.
@@ -29,7 +24,7 @@ class ForgotPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Password recovery',
+            subject: 'Your receiving account has been approved',
         );
     }
 
@@ -39,18 +34,14 @@ class ForgotPasswordMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mails.forgot-password',
-            with: [
-                'token' => $this->forgotPassword->access_token,
-                'expiresAt' => $this->forgotPassword->expires_at,
-            ],
+            view: 'mails.sub-account-approved',
         );
     }
 
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, Attachment>
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array
     {

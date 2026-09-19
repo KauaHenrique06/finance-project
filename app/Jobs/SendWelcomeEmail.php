@@ -28,7 +28,7 @@ class SendWelcomeEmail implements ShouldQueue
     {
         try {
 
-            Mail::to($this->user)->send(new WelcomeMail());
+            Mail::to($this->user)->send(new WelcomeMail($this->user));
         } catch(Exception $e) {
             Log::info('Falha ao enviar email de confirmação:' . $e->getMessage());
         }

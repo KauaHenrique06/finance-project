@@ -18,7 +18,10 @@ class SendForgotPasswordMail implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(private User $user) {
+    public function __construct(
+        private User $user,
+        private ForgotPassword $forgotPassword
+    ) {
         $this->queue = 'remember-password-mail';
     }
 
@@ -28,7 +31,7 @@ class SendForgotPasswordMail implements ShouldQueue
     public function handle(): void
     {
         try {
-            Mail::to($this->user)->send(new ForgotPasswordMail());
+            Mail::to($this->user)->send(new ForgotPasswordMail($this->user, $this->forgotPassword));
         } catch(Exception $e) {
             Log::info('Falha ao enviar email de recuperação de senha: ' . $e->getMessage());
         }

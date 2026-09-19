@@ -2,16 +2,16 @@
 
 namespace App\Mail;
 
-use App\Models\ForgotPassword;
+use App\Models\Campaign;
+use App\Models\CampaignContribution;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ForgotPasswordMail extends Mailable
+class ContributionReceivedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -20,7 +20,8 @@ class ForgotPasswordMail extends Mailable
      */
     public function __construct(
         public User $user,
-        public ForgotPassword $forgotPassword
+        public Campaign $campaign,
+        public CampaignContribution $contribution
     ) {}
 
     /**
@@ -29,7 +30,7 @@ class ForgotPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Password recovery',
+            subject: 'You received a new contribution',
         );
     }
 
@@ -39,18 +40,14 @@ class ForgotPasswordMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mails.forgot-password',
-            with: [
-                'token' => $this->forgotPassword->access_token,
-                'expiresAt' => $this->forgotPassword->expires_at,
-            ],
+            view: 'mails.contribution-received',
         );
     }
 
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, Attachment>
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array
     {
