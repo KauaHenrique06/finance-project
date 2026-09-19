@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enum\AsaasSubAccountStatusEnum;
 use App\Traits\HasUuidV7;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -45,7 +46,7 @@ class AsaasSubAccount extends Model
             'account_agency' => 'string',
             'account_number' => 'string',
             'account_digit' => 'string',
-            'status' => 'string',
+            'status' => AsaasSubAccountStatusEnum::class,
             'commercial_info_expiration' => 'date',
             'asaas_pix_key' => 'string',
             'asaas_pix_key_id' => 'string',

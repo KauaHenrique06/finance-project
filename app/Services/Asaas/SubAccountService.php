@@ -4,6 +4,7 @@ namespace App\Services\Asaas;
 
 use App\Exceptions\ApiException;
 use App\Jobs\GenerateAsaasPixKey;
+use App\Jobs\VerifySubAccountDocuments;
 use App\Models\AsaasSubAccount;
 use App\Models\Campaign;
 use Exception;
@@ -11,12 +12,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Log;
+use Str;
 
 class SubAccountService
 {
     public function store(array $data) 
     {
         $authUser = Auth::user();
+        $url = (env('APP_URL') . 'api/webhook/asaas');
 
         $payload = [
             'name' => $authUser->name,
@@ -32,7 +35,7 @@ class SubAccountService
             'webhooks' => [
                 [
                     'name' => 'General webhooks',
-                    'url' => 'https://gps-richards-drives-dec.trycloudflare.com/api/webhook/asaas',
+                    'url' => $url,
                     'email' => $authUser->email,
                     'enabled' => true,
                     'interrupted' => false,
@@ -63,7 +66,7 @@ class SubAccountService
 
         $account = $response->json();
 
-        DB::transaction(function () use ($authUser, $account) {
+        return DB::transaction(function () use ($authUser, $account) {
 
             $subAccount = $authUser->subAccount()->create([
                 'asaas_account_id' => $account['id'],
@@ -79,10 +82,16 @@ class SubAccountService
                 'commercial_info_expiration' => $account['commercialInfoExpiration'] ?? null,
             ]);
 
-            GenerateAsaasPixKey::dispatch($subAccount)->afterCommit();
+            VerifySubAccountDocuments::dispatch($subAccount)->afterCommit()->delay(now()->addSeconds(20));
         });
     }
 
+    /**
+     * Summary of destroy
+     * 
+     * Register a valid IP for use this feature
+     * on website https://www.asaas.com/ in security page
+     */
     public function destroy(): void  
     {
         $authUserId = Auth::id();

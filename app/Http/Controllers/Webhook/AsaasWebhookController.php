@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Webhook;
 
+use App\Enum\AsaasSubAccountStatusEnum;
 use App\Enum\ContributionStatusEnum;
 use App\Exceptions\ApiException;
+use App\Helper\RequestHelper;
 use App\Http\Controllers\Controller;
+use App\Jobs\GenerateAsaasPixKey;
 use App\Models\AsaasSubAccount;
 use App\Models\Campaign;
 use App\Models\CampaignContribution;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,17 +20,12 @@ class AsaasWebhookController extends Controller
     public function handle(Request $request)
     {
         $event = $request->input('event');
-        $subAccount = AsaasSubAccount::where('asaas_account_id', $request->input('account.id'))
-            ->firstOrFail();
-
-        if ($subAccount->status !== 'approved')
-        {
-            throw new ApiException('The sub account must be approved for create a payment!');
-        }
+        Log::info('webhook: ' . $request);
 
         match ($event)
         {
             'PAYMENT_RECEIVED' => $this->handlePaymentCreated($request),
+            'ACCOUNT_STATUS_GENERAL_APPROVAL_AWAITING_APPROVAL' => $this->handleSubAccountApproved($request),
             default => Log::debug('Event ignored: ' . $event)
         };
     }
@@ -50,8 +47,23 @@ class AsaasWebhookController extends Controller
         });
     }
 
-    protected function handleSubAccountApproved()
+    protected function handleSubAccountApproved($request)
     {
+        $status = $request['accountStatus']['general'];
+        $subAccount = AsaasSubAccount::where(
+            'asaas_account_id', $request['account']['id']
+        )->firstOrFail();
 
+        $statusForUpdate = match ($status) 
+        {
+            'APPROVED' => AsaasSubAccountStatusEnum::APPROVED->value
+        };
+
+        DB::transaction(fn () => $subAccount->update(['status' => $statusForUpdate]));
+
+        if ($subAccount->status === AsaasSubAccountStatusEnum::APPROVED)
+        {
+            GenerateAsaasPixKey::dispatch($subAccount);
+        }
     }
 }
