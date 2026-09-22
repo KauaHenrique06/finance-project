@@ -18,10 +18,7 @@ class VerifySubAccountDocuments implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(private AsaasSubAccount $subAccount)
-    {
-        $this->queue = 'sub-account-documents-mail';
-    }
+    public function __construct(private AsaasSubAccount $subAccount) {}
 
     /**
      * Execute the job.
@@ -41,8 +38,9 @@ class VerifySubAccountDocuments implements ShouldQueue
 
         $data = $response->json();
         $user = $this->subAccount->user;
+        $onboardingUrl = data_get($data, 'data.0.onboardingUrl');
 
-        if (empty($data['onboardingUrl']))
+        if (empty($onboardingUrl))
         {
             Log::warning(
                 "Failed to send email for user {$user->name} for activate your account!"
@@ -53,7 +51,7 @@ class VerifySubAccountDocuments implements ShouldQueue
 
         Mail::to($user)->send(new SubAccountDocumentsMail(
             $user,
-            $data['onboardingUrl'],
+            $onboardingUrl,
             $this->subAccount->commercial_info_expiration
         ));
     }

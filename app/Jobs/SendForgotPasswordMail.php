@@ -33,7 +33,7 @@ class SendForgotPasswordMail implements ShouldQueue
         try {
             Mail::to($this->user)->send(new ForgotPasswordMail($this->user, $this->forgotPassword));
         } catch(Exception $e) {
-            Log::info('Falha ao enviar email de recuperação de senha: ' . $e->getMessage());
+            Log::error('Falha ao enviar email de recuperação de senha: ' . $e->getMessage());
         }
     }
 }

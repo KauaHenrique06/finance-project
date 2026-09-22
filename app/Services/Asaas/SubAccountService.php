@@ -3,7 +3,6 @@
 namespace App\Services\Asaas;
 
 use App\Exceptions\ApiException;
-use App\Jobs\GenerateAsaasPixKey;
 use App\Jobs\VerifySubAccountDocuments;
 use App\Models\AsaasSubAccount;
 use App\Models\Campaign;
@@ -12,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Log;
-use Str;
 
 class SubAccountService
 {
@@ -111,14 +109,4 @@ class SubAccountService
         $subAccount->delete();
         $campaigns->map(fn ($campaign) => $campaign->delete());
     }
-
-    // Create the function for help send request for Asaas
-    // private function request(string $method, array $payload, string $url) 
-    // {
-    //     try { 
-            
-    //     } catch (\Exception $e) {
-    //         throw new ApiException('Falha ao conectar na API do Asaas: ' . $e->getMessage());
-    //     }
-    // }
 }

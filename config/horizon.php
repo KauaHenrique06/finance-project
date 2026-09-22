@@ -199,7 +199,12 @@ return [
     'defaults' => [
         'supervisor-1' => [
             'connection' => 'redis',
-            'queue' => ['default'],
+            'queue' => [
+                'default',
+                'welcome-mail',
+                'remember-password-mail',
+                'sub-account-documents-mail',
+            ],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 1,
@@ -225,7 +230,12 @@ return [
             'supervisor-1' => [
                 'connection' => 'redis',
                 'maxProcesses' => 3,
-                'queue' => ['default', 'welcome-mail'],
+                'queue' => [
+                    'default',
+                    'welcome-mail',
+                    'remember-password-mail',
+                    'sub-account-documents-mail',
+                ],
                 // max time that job will be run
                 'timeout' => 120,
                 // time inter tries
