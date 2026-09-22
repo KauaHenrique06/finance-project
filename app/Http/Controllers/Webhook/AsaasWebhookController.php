@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Webhook;
 
 use App\Enum\AsaasSubAccountStatusEnum;
 use App\Enum\ContributionStatusEnum;
-use App\Exceptions\ApiException;
-use App\Helper\RequestHelper;
 use App\Http\Controllers\Controller;
 use App\Jobs\GenerateAsaasPixKey;
 use App\Models\AsaasSubAccount;
@@ -25,7 +23,8 @@ class AsaasWebhookController extends Controller
         match ($event)
         {
             'PAYMENT_RECEIVED' => $this->handlePaymentCreated($request),
-            'ACCOUNT_STATUS_GENERAL_APPROVAL_AWAITING_APPROVAL' => $this->handleSubAccountApproved($request),
+            'ACCOUNT_STATUS_GENERAL_APPROVAL_APPROVED' => $this->handleVerifySubAccountStatus($request),
+            'ACCOUNT_STATUS_GENERAL_APPROVAL_REJECTED' => $this->handleVerifySubAccountStatus($request),
             default => Log::debug('Event ignored: ' . $event)
         };
     }
@@ -47,21 +46,26 @@ class AsaasWebhookController extends Controller
         });
     }
 
-    protected function handleSubAccountApproved($request)
+    protected function handleVerifySubAccountStatus($request)
     {
         $status = $request['accountStatus']['general'];
         $subAccount = AsaasSubAccount::where(
             'asaas_account_id', $request['account']['id']
         )->firstOrFail();
 
-        $statusForUpdate = match ($status) 
+        match ($status) 
         {
-            'APPROVED' => AsaasSubAccountStatusEnum::APPROVED->value
+            'APPROVED' => $this->updateAccountStatus(AsaasSubAccountStatusEnum::APPROVED, $subAccount),
+            'REJECTED' => $this->updateAccountStatus(AsaasSubAccountStatusEnum::REJECTED, $subAccount),
+            default => Log::debug('Account status ignored: ' . $status)
         };
+    }
 
-        DB::transaction(fn () => $subAccount->update(['status' => $statusForUpdate]));
+    private function updateAccountStatus(AsaasSubAccountStatusEnum $status, AsaasSubAccount $subAccount)
+    {
+        DB::transaction(fn () => $subAccount->update(['status' => $status]));
 
-        if ($subAccount->status === AsaasSubAccountStatusEnum::APPROVED)
+        if ($status === AsaasSubAccountStatusEnum::APPROVED) 
         {
             GenerateAsaasPixKey::dispatch($subAccount);
         }
