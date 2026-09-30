@@ -3,14 +3,13 @@
 namespace App\Services\Asaas;
 
 use App\Exceptions\ApiException;
+use App\Helper\RequestHelper;
 use App\Jobs\VerifySubAccountDocuments;
 use App\Models\AsaasSubAccount;
 use App\Models\Campaign;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Log;
 
 class SubAccountService
 {
@@ -51,10 +50,7 @@ class SubAccountService
 
         try {
 
-            $response = Http::timeout(60)
-                ->withHeader('access_token', config('services.asaas.key'))
-                ->post(config('services.asaas.url') . '/accounts', $payload)
-                ->throw();
+            $response = RequestHelper::request('POST', '/accounts', payload: $payload);
 
         } catch (Exception $e) {
             throw new ApiException('Failed to send sub account to asaas: ' . $e->getMessage());
@@ -96,10 +92,7 @@ class SubAccountService
 
         try {
 
-            Http::withHeader('access_token', config('services.asaas.key'))
-                ->withUrlParameters(['id' => $subAccount->asaas_account_id])
-                ->delete(config('services.asaas.url') . '/accounts/{id}')
-                ->throw();
+            RequestHelper::request('DELETE', '/accounts/' . $subAccount->asaas_account_id);
         } catch (Exception $e) {
             throw new ApiException('Failed to delete sub account!' . $e->getMessage());
         }

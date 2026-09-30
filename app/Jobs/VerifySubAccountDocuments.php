@@ -3,11 +3,11 @@
 namespace App\Jobs;
 
 use App\Exceptions\ApiException;
+use App\Helper\RequestHelper;
 use App\Mail\SubAccountDocumentsMail;
 use App\Models\AsaasSubAccount;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -27,10 +27,11 @@ class VerifySubAccountDocuments implements ShouldQueue
     {
         try {
 
-            $response = Http::timeout(60)
-                ->withHeader('access_token', $this->subAccount->asaas_access_token_api_key)
-                ->get(config('services.asaas.url') . '/myAccount/documents')
-                ->throw();
+            $response = RequestHelper::request(
+                'GET',
+                '/myAccount/documents',
+                $this->subAccount->asaas_access_token_api_key
+            );
 
         } catch (\Exception $e) {
             throw new ApiException('Failed to to establish connection with asaas API: ' . $e->getMessage());

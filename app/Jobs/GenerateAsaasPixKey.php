@@ -3,10 +3,10 @@
 namespace App\Jobs;
 
 use App\Exceptions\ApiException;
+use App\Helper\RequestHelper;
 use App\Models\AsaasSubAccount;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Http;
 use Log;
 
 class GenerateAsaasPixKey implements ShouldQueue
@@ -25,13 +25,12 @@ class GenerateAsaasPixKey implements ShouldQueue
     {
         try {
 
-            $response = Http::timeout(60)
-                ->withHeader('access_token', $this->subAccount->asaas_access_token_api_key)
-                ->post(config('services.asaas.url') . '/pix/addressKeys', [
-                    'type' => 'EVP'
-                ])
-                ->throw()
-                ->json();
+            $response = RequestHelper::request(
+                'POST',
+                '/pix/addressKeys',
+                $this->subAccount->asaas_access_token_api_key,
+                ['type' => 'EVP']
+            )->json();
 
             $this->subAccount->update([
                 'asaas_pix_key_id' => $response['id'],

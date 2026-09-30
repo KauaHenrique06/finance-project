@@ -3,12 +3,12 @@
 namespace App\Services\Asaas;
 
 use App\Exceptions\ApiException;
+use App\Helper\RequestHelper;
 use App\Models\AsaasSubAccount;
 use App\Models\Campaign;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Http;
 
 class PaymentService
 {
@@ -32,10 +32,12 @@ class PaymentService
         }
 
         try {
-            $response = Http::timeout(60)
-                ->withHeader('access_token', $subAccount->asaas_access_token_api_key)
-                ->post(config('services.asaas.url') . '/pix/qrCodes/static', $payload)
-                ->throw();
+            $response = RequestHelper::request(
+                'POST',
+                '/pix/qrCodes/static',
+                $subAccount->asaas_access_token_api_key,
+                $payload
+            );
         } catch (Exception $e) {
             throw new ApiException("Failed to generate a qr code: " . $e->getMessage());
         }
@@ -49,11 +51,11 @@ class PaymentService
             ->firstOrFail();
 
         try {
-            Http::timeout(60)
-                ->withHeader('access_token', $subAccount->asaas_access_token_api_key)
-                ->withUrlParameters(['id' => $campaign->asaas_qr_code_id])
-                ->delete(config('services.asaas.url') . '/pix/qrCodes/static/{id}')
-                ->throw();
+            RequestHelper::request(
+                'DELETE',
+                '/pix/qrCodes/static/' . $campaign->asaas_qr_code_id,
+                $subAccount->asaas_access_token_api_key
+            );
         } catch (Exception $e) {
             throw new ApiException("Failed to delete qr code: " . $e->getMessage());
         }
