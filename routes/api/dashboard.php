@@ -5,4 +5,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth.api')->group(function () {
     Route::get('/group', [TransactionDashboardController::class, 'groupDashboard'])->middleware('can:dashboard.view');
+    Route::get('/campaign', [TransactionDashboardController::class, 'campaignDashboard'])->middleware('can:dashboard.view');
 });

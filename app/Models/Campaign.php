@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Enum\CampaignStatusEnum;
 use App\Policies\Campaign\CampaignPolicy;
 use App\Traits\HasUuidV7;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -52,6 +54,12 @@ class Campaign extends Model
         return new Attribute(
             get: fn () => (float)$total
         );
+    }
+
+    #[Scope]
+    protected function filterByAuthUser(Builder $query, string $authUserId)
+    {
+        $query->where('owner_id', $authUserId);
     }
 
     public function owner(): BelongsTo
